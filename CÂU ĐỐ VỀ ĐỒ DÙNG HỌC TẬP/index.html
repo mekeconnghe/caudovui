@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Bé Giải Đố - Chủ Đề Trường Học">
+    <meta property="og:description" content="Khám phá thế giới đồ dùng học tập qua những câu đố vui nhộn cùng Mẹ Kể Con Nghe">
+    <meta property="og:url" content="https://baithodovuichobe04.netlify.app/">
+    <meta property="og:image" content="https://baithodovuichobe04.netlify.app/thumb.jpg">
+    <meta property="og:image:secure_url" content="https://baithodovuichobe04.netlify.app/thumb.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Câu đố vui cho bé - Mẹ Kể Con Nghe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .img-container { box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+    </style>
+</head>
+<body class="bg-rose-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div class="text-center mb-4 w-full space-y-2">
+        <h1 class="text-xl md:text-2xl font-bold text-rose-700 flex items-center justify-center gap-2">
+            <i data-lucide="graduation-cap" class="w-7 h-7"></i>
+            Bé giải đố đồ dùng học tập nhé!
+        </h1>
+        <a href="https://zalo.me/g/vlhiiv860" target="_blank" class="inline-flex items-center gap-2 bg-rose-100 text-rose-800 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-rose-200 border border-rose-200 transition-colors">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Cộng đồng Mẹ Kể Con Nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-rose-200 noselect"
+            style="min-height: 650px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-4 md:p-6 flex flex-col h-full overflow-y-auto no-scrollbar">
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                    <span id="question-counter">Câu hỏi 1/9</span>
+                    
+                    <div id="audio-container" class="invisible">
+                        <button onclick="playEnglishVoice(event)" class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all border border-blue-200 flex items-center gap-1">
+                            <i data-lucide="volume-2" class="w-5 h-5"></i>
+                            <span class="text-[10px] font-bold">NGHE</span>
+                        </button>
+                    </div>
+
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-rose-100 text-rose-700">Câu đố</span>
+                </div>
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-rose-600 active:bg-rose-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { id: 1, question: "Cày trên đồng bãi trắng tinh\nCày bằng mực tím, ra hình chữ ngay\nBé ơi chăm chỉ mỗi ngày\nVở thơm, chữ đẹp, cô thầy khen ngoan?", explanation: "Cây bút mực", english: "Fountain pen", image: "cay-but-muc.jpg", hint: "Vật dụng giúp bé viết những nét chữ tím thanh đậm, muốn viết được phải bơm mực vào bụng đấy!", facts: ["Bút mực giúp nét chữ trông uyển chuyển và đẹp hơn.", "Cần phải bơm mực thường xuyên để bút không bị hết mực.", "Có một ngòi kim loại nhỏ ở đầu để dẫn mực ra giấy."] },
+            { id: 2, question: "Bụng đầy kiến thức bao la\nDạy em lễ phép, thật thà, siêng năng\nMở ra thấy những điều hay\nGấp vào là cả những ngày mộng mơ?", explanation: "Quyển sách", english: "Book", image: "quyen-sach.jpg", hint: "Là kho tàng chứa bao nhiêu câu chuyện cổ tích và kiến thức hay, bé thường đọc mỗi tối.", facts: ["Sách là người bạn mang đến cho bé kiến thức bao la.", "Đọc sách mỗi ngày giúp não bộ bé thông minh và nhạy bén hơn.", "Trên thế giới có hàng triệu cuốn sách với đủ màu sắc."] },
+            { id: 3, question: "Trên vai em nhẹ nhàng\nGiữ bao điều kiến thức\nBút, thước nằm ngay ngắn\nCùng em học mỗi ngày", explanation: "Cái cặp sách", english: "School bag", image: "cai-cap-sach.jpg", hint: "Đồ vật có hai quai đeo trên vai, đựng đầy sách vở và đồ dùng mỗi khi bé đến trường.", facts: ["Cặp sách giúp bảo vệ sách vở không bị nhăn hay ướt.", "Có nhiều ngăn nhỏ để bé sắp xếp đồ dùng gọn gàng.", "Nên đeo cả hai quai để bảo vệ cột sống lưng luôn thẳng."] },
+            { id: 4, question: "Thân mình gầy guộc thon dài\nDòng kẻ ngay ngắn, chẳng sai chút nào\nGiúp bé kẻ vẽ thật cao\nThẳng hàng, thẳng lối, tên nào bạn ơi?", explanation: "Thước kẻ", english: "Ruler", image: "thuoc-ke.jpg", hint: "Dáng hình dài và dẹt, trên thân có các vạch số, dùng để kẻ những đường thẳng tắp.", facts: ["Thước giúp bé đo độ dài của các đồ vật nhỏ xinh.", "Thước có thể làm bằng nhựa dẻo, gỗ hoặc kim loại.", "Là 'trợ thủ' đắc lực của bé trong môn Toán học."] },
+            { id: 5, question: "Trông như cái kẹo nhỏ xinh\nChữ hỏng xóa sạch, chẳng còn dấu chi\nHọc trò ngày ấy, nay thì\nVẫn luôn cần đến, là gì bé ơi?", explanation: "Cục tẩy", english: "Eraser", image: "cuc-tay.jpg", hint: "Một cục nhỏ nhắn, thường làm bằng cao su, có tài làm biến mất những nét bút chì viết sai.", facts: ["Cục tẩy xóa được vết chì nhờ vào lực ma sát với giấy.", "Một số loại tẩy có mùi thơm rất dễ chịu như kẹo.", "Tẩy được phát minh từ hơn 200 năm trước rồi đấy!"] },
+            { id: 6, question: "Cái gì làm bằng gỗ lim\nMỗi khi vang tiếng, cả trường cùng nghe\nTùng tùng rộn rã bốn bề\nBáo giờ học đến, giờ về, ra chơi?", explanation: "Cái trống trường", english: "School drum", image: "cai-trong-truong.jpg", hint: "Đứng uy nghiêm ở sân trường, bụng to tròn và phát ra tiếng 'Tùng! Tùng!' rất vang.", facts: ["Mặt trống thường được làm từ da trâu rất bền và dai.", "Tiếng trống là hiệu lệnh cho toàn bộ học sinh trong trường.", "Trống trường là biểu tượng gắn liền với tuổi học trò."] },
+            { id: 7, question: "Cái gì nằm ở góc tường\nĐựng đầy nước mát, bé thường đến thăm\nSau giờ tập thể dục xong\nUống vào một ngụm, thỏa lòng khát khao?", explanation: "Bình đựng nước", english: "Water bottle", image: "binh-dung-nuoc.jpg", hint: "Giúp bé mang nước sạch từ nhà đi để giải khát sau những giờ vui chơi mệt nhoài.", facts: ["Uống đủ nước giúp bé luôn khỏe mạnh và tỉnh táo học tập.", "Dùng bình cá nhân giúp bảo vệ môi trường khỏi rác thải nhựa.", "Bình nước thường được làm từ nhựa an toàn hoặc inox."] },
+            { id: 8, question: "Mình tròn thân trắng\nDáng hình thon thon\nThân phận cỏn con\nMòn dần theo chữ", explanation: "Viên phấn", english: "Chalk", image: "vien-phan.jpg", hint: "Cùng cô giáo viết lên bảng đen những bài học hay, càng viết thì thân mình càng ngắn lại.", facts: ["Phấn được làm từ một loại đá mềm gọi là thạch cao.", "Ngoài màu trắng, phấn còn có đủ các màu sắc rực rỡ.", "Phấn giúp cô giáo truyền đạt kiến thức lên bảng cho cả lớp."] },
+            { id: 9, question: "Áo em đủ sắc đủ màu\nThân em trắng muốt, như nhau thẳng hàng\nMỏng dày là ở số trang\nLời thầy cô dạy, em mang giữ gìn?", explanation: "Quyển vở", english: "Notebook", image: "quyen-vo.jpg", hint: "Nơi bé tập viết những nét chữ đầu đời, bên trong có những dòng kẻ ô ly ngay ngắn.", facts: ["Các dòng kẻ giúp bé tập viết chữ thẳng hàng và đẹp hơn.", "Mỗi trang vở ghi dấu sự nỗ lực học tập hàng ngày của bé.", "Cần giữ gìn vở sạch sẽ, không được làm rách hay vẽ bậy."] }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+        const audioContainer = document.getElementById('audio-container');
+
+        function playEnglishVoice(event) {
+            event.stopPropagation();
+            const card = flashcards[currentIndex];
+            if (card && card.english) {
+                const utterance = new SpeechSynthesisUtterance(card.english);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            cardHeader.style.display = 'flex';
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu hỏi ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+                audioContainer.classList.remove('invisible');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-rose-100 text-rose-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+                audioContainer.classList.add('invisible');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-4 whitespace-pre-line italic text-rose-900">"${card.question}"</h3>
+                        ${showHint ? `<div class="mt-4 p-5 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-2xl border border-yellow-200 animate-fade-in text-left shadow-inner"><span class="font-bold flex items-center gap-2 mb-2 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-4">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        <div class="text-2xl font-black text-green-700 uppercase tracking-tight mb-1">${card.explanation}</div>
+                        <div class="text-lg font-bold text-blue-600 mb-4 tracking-widest flex items-center gap-2 uppercase italic">
+                           <span>-</span> ${card.english} <span>-</span>
+                        </div>
+                        <div class="w-full bg-green-50 rounded-2xl p-4 text-left border border-green-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-green-900 mb-2 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-green-600"></i> 3 sự thật thú vị:</p>
+                            <ul class="space-y-1">${card.facts.map(fact => `<li class="text-[12px] text-gray-700 flex items-start gap-2"><span class="text-green-500 font-bold">•</span><span>${fact}</span></li>`).join('')}</ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderEndScreen() {
+            cardHeader.style.display = 'none';
+            btnHint.disabled = true;
+            audioContainer.classList.add('invisible');
+            btnNext.innerHTML = 'Kết thúc';
+            contentEl.innerHTML = `
+                <div class="animate-fade-in text-center px-4">
+                    <div class="mb-6 bg-rose-100 p-6 rounded-full inline-block animate-bounce"><i data-lucide="party-popper" class="w-12 h-12 text-rose-600"></i></div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">Hoan hô bé giỏi quá!</h2>
+                    <p class="text-gray-600 mb-8">Bé đã trả lời đúng hết các câu đố về đồ dùng học tập rồi!</p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZsJd0quribUCkIP5roWjaPPcESPLAtCHYAUbnDTeA5SCfhpS0" target="_blank" class="flex items-center justify-center gap-3 bg-pink-500 hover:bg-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg transition-all hover:scale-105 transform"><i data-lucide="shopping-bag" class="w-6 h-6"></i>Sản phẩm cho Mẹ và Bé</a>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+        function resetApp() { if (event) event.stopPropagation(); currentIndex = 0; isFlipped = false; showHint = false; isEndScreen = false; renderCard(); }
+
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
