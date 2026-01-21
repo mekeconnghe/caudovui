@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Câu đố vui cho bé - Mẹ Kể Con Nghe">
+    <meta property="og:description" content="Khám phá thế giới côn trùng kỳ thú qua những câu đố vui nhộn">
+    <meta property="og:url" content="https://baithodovuichobe.netlify.app/?v=2">
+    <meta property="og:image" content="https://baithodovuichobe.netlify.app/thumb.jpg?v=2">
+    <meta property="og:image:secure_url" content="https://baithodovuichobe.netlify.app/thumb.jpg?v=2">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Câu đố vui cho bé - Mẹ Kể Con Nghe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .img-container { box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+    </style>
+</head>
+<body class="bg-rose-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div class="text-center mb-4 w-full space-y-2">
+        <h1 class="text-xl md:text-2xl font-bold text-rose-700 flex items-center justify-center gap-2">
+            <i data-lucide="bug" class="w-7 h-7"></i>
+            Đây là con gì?
+        </h1>
+        <a href="https://zalo.me/g/vlhiiv860" target="_blank" class="inline-flex items-center gap-2 bg-rose-100 text-rose-800 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-rose-200 border border-rose-200 transition-colors">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Cộng đồng Mẹ Kể Con Nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-rose-200 noselect"
+            style="min-height: 650px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-4 md:p-6 flex flex-col h-full overflow-y-auto no-scrollbar">
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                    <span id="question-counter">Câu hỏi 1/14</span>
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-rose-100 text-rose-700">Câu đố</span>
+                </div>
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-rose-600 active:bg-rose-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { id: 32, question: "Chăm chỉ hút mật ngàn hoa\nXây tổ ngăn nắp, cả nhà cùng lo\nCánh mỏng bay lượn vo vo\nLàm ra mật ngọt, thơm tho tặng đời?", explanation: "Con Ong", image: "con-ong.jpg", hint: "Sống thành đàn rất đoàn kết, bay vè vè quanh bông hoa và tặng mật ngọt.", facts: ["Ong thụ phấn giúp hoa kết trái và cây cối phát triển.", "Chúng giao tiếp bằng điệu nhảy để chỉ đường tìm hoa.", "Đây là côn trùng duy nhất tạo ra thực phẩm cho người."] },
+            { id: 33, question: "Dập dìu cánh phấn sắc màu\nBay lượn vườn cúc, vườn đào thắm tươi\nVốn từ sâu róm mà thôi\nHóa thành tiên nữ, vui chơi giữa đời?", explanation: "Con Bướm", image: "con-buom.jpg", hint: "Có đôi cánh rực rỡ nhiều màu sắc, trước kia là một chú sâu nhỏ.", facts: ["Bướm nếm vị thức ăn bằng chính đôi chân của mình.", "Đôi cánh rực rỡ cấu tạo từ hàng ngàn vảy nhỏ li ti.", "Bướm chỉ có thể bay khi cơ thể được sưởi nắng ấm."] },
+            { id: 34, question: "Bé tẹo mà sức dẻo dai\nTha mồi to lớn, chẳng ai sánh bằng\nĐi theo hàng lối siêng năng\nĐoàn kết là sức, cân bằng thế gian?", explanation: "Con Kiến", image: "con-kien.jpg", hint: "Rất nhỏ bé nhưng cực kỳ khỏe, luôn đi thành hàng dài tha mồi.", facts: ["Kiến có thể nâng vật nặng gấp 50 lần trọng lượng cơ thể.", "Chúng không có tai và nghe bằng cách cảm nhận rung động.", "Kiến sống thành đàn lớn và có tính kỷ luật rất cao."] },
+            { id: 35, question: "Lập lòe đốm sáng trong đêm\nNhư ngọn đèn nhỏ, dịu êm soi đường\nMùa hè rực rỡ yêu thương\nThắp sáng bụi cỏ, vấn vương lòng người?", explanation: "Con Đom Đốm", image: "con-dom-dom.jpg", hint: "Loài côn trùng nhỏ biết tự phát sáng ở phần đuôi như đèn lồng.", facts: ["Ánh sáng đom đốm là loại ánh sáng lạnh, không tỏa nhiệt.", "Chúng dùng ánh sáng đuôi để tìm bạn trong đêm tối.", "Đom đốm chỉ sống ở nơi môi trường xanh và sạch sẽ."] },
+            { id: 36, question: "Giăng tơ kết lưới giữa trời\nChờ mồi sập bẫy, thảnh thơi ăn mừng\nTám chân leo trèo không ngừng\nThợ dệt tài giỏi, xin đừng chê bai?", explanation: "Con Nhện", image: "con-nhen.jpg", hint: "Có 8 chân, rất giỏi dệt lưới tơ mỏng để bắt ruồi muỗi.", facts: ["Sợi tơ nhện mỏng nhưng bền chắc hơn cả sợi thép.", "Nhện giúp ích cho con người bằng cách bắt ruồi muỗi.", "Hầu hết các loài nhện có 8 mắt nhưng nhìn không rõ."] },
+            { id: 37, question: "Suốt mùa đông lạnh ngủ vùi\nHè về lột xác, niềm vui ngập tràn\nKêu ran rả khúc ca vang\nBáo hiệu phượng nở, hè sang rộn ràng?", explanation: "Con Ve Sầu", image: "con-ve-sau.jpg", hint: "Tiếng kêu vang rộn rã trên cây, gắn liền với hoa phượng đỏ.", facts: ["Ve sầu sống dưới đất nhiều năm trước khi lên cây.", "Chỉ có ve đực mới biết kêu để gọi bạn trong mùa hè.", "Tiếng ve sầu là âm thanh lớn nhất thế giới côn trùng."] },
+            { id: 38, question: "Đôi càng mẫm bóng đen sì\nĐào hang rất giỏi, mỗi khi đêm về\nGảy đàn ri rỉ đam mê\nNhạc sĩ đồng cỏ, mải mê yêu đời?", explanation: "Con Dế Mèn", image: "con-de-men.jpg", hint: "Có đôi càng khỏe, sống trong hang và kêu ri ri ban đêm.", facts: ["Dế mèn kêu bằng cách cọ xát hai cánh vào nhau.", "Tai của dế mèn nằm ở phần chân trước thay vì trên đầu.", "Chúng rất sạch sẽ và thường xuyên dọn dẹp tổ của mình."] },
+            { id: 39, question: "Áo xanh trùng điệp cỏ cây\nBắp đùi to khỏe, nhảy bay chập chờn\nĐá xe, xe đổ cái rầm (trong truyện)\nNgoài đời ăn lúa, nông dân chẳng mừng?", explanation: "Con Châu Chấu", image: "con-chau-chau.jpg", hint: "Thân xanh giống lá cây, có hai đùi to giúp nhảy cực cao.", facts: ["Châu chấu nhảy xa gấp 20 lần chiều dài cơ thể mình.", "Lỗ tai của châu chấu nằm ở hai bên bụng rất đặc biệt.", "Chúng hít thở qua các lỗ nhỏ dọc theo cơ thể."] },
+            { id: 40, question: "Nhiều chân nhiều đốt, mình dài\nBò trên tán lá, miệt mài ăn no\nKén tơ ấp ủ tròn vo\nNgày sau hóa bướm, tự do lên trời?", explanation: "Con Sâu", image: "con-sau.jpg", hint: "Thân mềm, nhiều chân, ăn lá và sẽ cuộn kén để biến hình.", facts: ["Sâu nhỏ có số lượng cơ bắp nhiều hơn cả con người.", "Sâu ăn rất nhiều lá để chuẩn bị cho quá trình hóa nhộng.", "Đây là giai đoạn đầu để biến thành một chú bướm đẹp."] },
+            { id: 41, question: "Cánh đỏ chấm đen sắc màu\nTròn như cúc áo, đậu vào lá xanh\nBắt rệp giúp ích cây lành\nBé nhìn thấy nó, lanh chanh reo mừng?", explanation: "Con Bọ Rùa", image: "con-bo-rua.jpg", hint: "Hình tròn xíu như cái cúc áo, cánh đỏ cam có chấm đen.", facts: ["Bọ rùa giúp diệt trừ các loài rệp gây hại cho cây trồng.", "Khi gặp nguy hiểm chúng thường nằm im giả chết.", "Chấm đen trên cánh giúp cảnh báo kẻ thù mình không ngon."] },
+            { id: 42, question: "Vo ve tiếng sáo bên tai\nChích người hút máu, chẳng ai ưa gì\nGây bao bệnh tật li bì\nBé ngủ mắc màn, đuổi đi tức thì?", explanation: "Con Muỗi", image: "con-muoi.jpg", hint: "Hay bay vò ve, thích chích vào da gây ngứa, nhớ ngủ màn.", facts: ["Chỉ có muỗi cái hút máu, muỗi đực chỉ hút mật hoa.", "Muỗi phát hiện người qua hơi thở và mùi mồ hôi cơ thể.", "Muỗi là loài côn trùng bay khá chậm so với ruồi hay ong."] },
+            { id: 43, question: "Cánh mỏng trong suốt như gương\nMắt to lấp lánh, dễ thương vô cùng\nBay cao nắng đẹp tưng bừng\nBay thấp mưa xuống, xin đừng đi chơi?", explanation: "Con Chuồn Chuồn", image: "con-chuon-chuon.jpg", hint: "Có 4 cánh mỏng và mắt rất to, giúp bé dự báo thời tiết.", facts: ["Chuồn chuồn có thể bay đứng im, bay lùi hoặc đổi hướng.", "Đôi mắt to giúp chúng có tầm nhìn bao quát mọi hướng.", "Chúng là những phi công tài ba nhất thế giới côn trùng."] },
+            { id: 44, question: "Nhỏ bé mà phá gỗ to\nXây tổ đùn đất, như gò núi cao\nMưa rào bay lượn lao xao\nRụng cánh xuống đất, chui vào làm hang?", explanation: "Con Mối", image: "con-moi.jpg", hint: "Thích ăn gỗ và xây tổ bằng đất cao, bay ra khi sắp mưa.", facts: ["Mối chúa có tuổi thọ rất cao, có thể sống đến vài chục năm.", "Mối thợ làm việc liên tục cả đêm không bao giờ ngủ.", "Tổ mối được xây dựng kiên cố với thông gió tự nhiên."] },
+            { id: 45, question: "Thân dẹt, chân mọc hai hàng\nBò nhanh thoăn thoắt, dọc ngang nẻo đường\nNọc độc nguy hiểm khôn lường\nBé ơi cẩn thận, chớ thường đùa chơi?", explanation: "Con Rết", image: "con-ret.jpg", hint: "Thân dài nhiều đốt, nhiều chân và bò nhanh, đừng chạm vào.", facts: ["Số lượng cặp chân của rết luôn luôn là một số lẻ.", "Rết là loài săn mồi đáng sợ, chúng ăn cả nhện và sâu.", "Rết mẹ thường cuộn tròn cơ thể bảo vệ trứng và con."] }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            cardHeader.style.display = 'flex';
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu hỏi ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-rose-100 text-rose-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-4 whitespace-pre-line italic text-rose-900">"${card.question}"</h3>
+                        ${showHint ? `<div class="mt-4 p-5 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-2xl border border-yellow-200 animate-fade-in text-left shadow-inner"><span class="font-bold flex items-center gap-2 mb-2 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-4">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        <div class="text-2xl font-black text-green-700 uppercase tracking-tight mb-4">${card.explanation}</div>
+                        <div class="w-full bg-green-50 rounded-2xl p-4 text-left border border-green-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-green-900 mb-2 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-green-600"></i> 3 sự thật thú vị:</p>
+                            <ul class="space-y-1">${card.facts.map(fact => `<li class="text-[12px] text-gray-700 flex items-start gap-2"><span class="text-green-500 font-bold">•</span><span>${fact}</span></li>`).join('')}</ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderEndScreen() {
+            cardHeader.style.display = 'none';
+            btnHint.disabled = true;
+            btnNext.innerHTML = 'Kết thúc';
+            contentEl.innerHTML = `
+                <div class="animate-fade-in text-center px-4">
+                    <div class="mb-6 bg-rose-100 p-6 rounded-full inline-block animate-bounce"><i data-lucide="party-popper" class="w-12 h-12 text-rose-600"></i></div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">Hoan hô bé giỏi quá!</h2>
+                    <p class="text-gray-600 mb-8">Bé đã trả lời xong 14 câu đố về các loài côn trùng!</p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZsJd0quribUCkIP5roWjaPPcESPLAtCHYAUbnDTeA5SCfhpS0" target="_blank" class="flex items-center justify-center gap-3 bg-pink-500 hover:bg-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg transition-all hover:scale-105 transform"><i data-lucide="shopping-bag" class="w-6 h-6"></i>Sản phẩm cho Mẹ và Bé</a>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+        function resetApp() { if (event) event.stopPropagation(); currentIndex = 0; isFlipped = false; showHint = false; isEndScreen = false; renderCard(); }
+
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
