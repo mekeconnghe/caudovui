@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đố vui Ngày Đêm & Bốn Mùa</title>
+    
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Đố vui Ngày Đêm & Bốn Mùa - Bé yêu khám phá">
+    <meta property="og:description" content="Cùng bé tìm hiểu về Mặt trăng, Ông sao và 4 mùa Xuân Hạ Thu Đông!">
+    <meta property="og:image" content="https://caudovuibonmua.netlify.app/thumnail.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .shadow-soft { box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.1); }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); } 
+        }
+        .animate-heartbeat {
+            animation: heartbeat 2s infinite ease-in-out; 
+        }
+    </style>
+</head>
+<body class="bg-blue-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div id="main-header" class="flex flex-col items-center justify-center w-full mb-4 gap-3">
+        <h1 class="text-xl md:text-2xl font-bold text-blue-700 flex items-center justify-center gap-2 text-center">
+            <i data-lucide="sun" class="w-7 h-7"></i>
+            Đố vui Ngày Đêm & Bốn Mùa
+        </h1>
+        
+        <a href="https://zalo.me/g/hirmwg741" target="_blank" class="animate-heartbeat w-fit inline-flex items-center gap-2 bg-pink-500 text-white px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wide hover:bg-pink-600 border-2 border-pink-500 transition-all shadow-md">
+            <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
+            THAM GIA CỘNG ĐỒNG MẸ KỂ CON NGHE
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4 flex-grow">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-blue-200 noselect"
+            style="min-height: 600px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-3 flex flex-col h-full overflow-y-auto no-scrollbar">
+                
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-pink-500 mb-0">
+                    <span id="question-counter">Câu: 1/10</span>
+                    
+                    <div id="audio-container" class="invisible">
+                        <button onclick="playEnglishVoice(event)" class="py-1 px-3 rounded-full bg-amber-100 text-amber-600 hover:bg-amber-200 transition-all border border-amber-200 flex items-center gap-1 active:scale-90">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                            <span class="text-[10px] font-bold">NGHE</span>
+                        </button>
+                    </div>
+
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-blue-100 text-blue-700">Câu đố</span>
+                </div>
+
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls-area" class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-blue-600 active:bg-blue-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu câu đố chủ đề: NGÀY VÀ ĐÊM & BỐN MÙA
+        const flashcards = [
+            { id: 1, question: "Lúc khuyết lúc tròn\nTreo trên ngọn tre\nTỏa sáng mùa hè\nTrung thu phá cỗ.", explanation: "Mặt trăng", english: "The Moon", image: "mat-trang.webp", hint: "Xuất hiện vào ban đêm, tỏa ánh sáng dịu nhẹ, nơi có chú Cuội và chị Hằng Nga.", facts: ["Mặt trăng quay quanh Trái Đất.", "Bề mặt mặt trăng có rất nhiều hố lõm.", "Nhờ có mặt trăng mà chúng ta có thủy triều (nước lên xuống)."] },
+            { id: 2, question: "Ông mặt trời mọc\nGà gáy ó o\nBé dậy ăn no\nTới trường đi học.", explanation: "Buổi sáng", english: "Morning", image: "buoi-sang.webp", hint: "Lúc bé thức dậy đánh răng rửa mặt, bắt đầu một ngày mới đầy năng lượng.", facts: ["Buổi sáng mặt trời mọc ở hướng Đông.", "Không khí buổi sáng thường trong lành nhất trong ngày.", "Ăn sáng là bữa ăn quan trọng nhất giúp bé khỏe mạnh."] },
+            { id: 3, question: "Vẽ hình năm cánh\nLấp lánh trên cao\nĐêm tối rủ nhau\nThắp đèn thi sáng.", explanation: "Ngôi sao", english: "Star", image: "ngoi-sao.webp", hint: "Những đốm sáng nhỏ li ti nhấp nháy trên bầu trời đêm, rất nhiều không đếm hết được.", facts: ["Mặt trời của chúng ta thực ra cũng là một ngôi sao.", "Các ngôi sao trông nhỏ bé vì chúng ở rất xa.", "Có hàng tỷ ngôi sao trong vũ trụ."] },
+            { id: 4, question: "Mặt trời đi ngủ\nBóng tối bao trùm\nĐèn điện sáng trưng\nBé lên giường ngủ.", explanation: "Buổi tối", english: "Night", image: "buoi-toi.webp", hint: "Lúc trời tối đen, mọi người nghỉ ngơi sau một ngày làm việc và chìm vào giấc ngủ.", facts: ["Ngủ đủ giấc vào ban đêm giúp bé cao lớn.", "Một số loài vật như Cú mèo lại thức vào ban đêm.", "Ban đêm yên tĩnh giúp chúng ta thư giãn."] },
+            { id: 5, question: "Hoa đào khoe sắc\nÉn lượn trên trời\nVui quá đi thôi\nTết về rồi đó.", explanation: "Mùa xuân", english: "Spring", image: "mua-xuan.webp", hint: "Mùa đầu tiên trong năm, cây cối đâm chồi nảy lộc, bé được nhận lì xì.", facts: ["Mùa xuân thời tiết ấm áp và thường có mưa phùn.", "Chim én thường bay về làm tổ báo hiệu mùa xuân.", "Đây là mùa của lễ hội và Tết Nguyên Đán."] },
+            { id: 6, question: "Ve kêu râm ran\nPhượng hồng rực lửa\nNắng chan trước cửa\nBé được nghỉ hè.", explanation: "Mùa hè", english: "Summer", image: "mua-he.webp", hint: "Mùa nóng nhất trong năm, bé được nghỉ học, đi tắm biển và ăn kem.", facts: ["Mùa hè ban ngày thường dài hơn ban đêm.", "Nắng mùa hè giúp cây cối quang hợp mạnh mẽ.", "Bé cần uống nhiều nước vào mùa hè để không bị khát."] },
+            { id: 7, question: "Bầu trời xanh ngắt\nLá vàng rơi rơi\nGió heo may thổi\nBé rước đèn lồng.", explanation: "Mùa thu", english: "Autumn", image: "mua-thu.webp", hint: "Mùa mát mẻ, lá cây chuyển màu vàng rụng xuống, có ngày rằm Trung Thu.", facts: ["Vào mùa thu, nhiều loài cây rụng lá để tiết kiệm năng lượng.", "Thời tiết mùa thu hanh khô, dễ chịu.", "Đây là mùa tựu trường (bé bắt đầu năm học mới)."] },
+            { id: 8, question: "Gió bấc thổi về\nCây trơ trụi lá\nTrời sao lạnh quá\nBé mặc áo bông.", explanation: "Mùa đông", english: "Winter", image: "mua-dong.webp", hint: "Mùa lạnh giá nhất, bé phải quàng khăn, đội mũ len, ở nước ngoài còn có tuyết rơi.", facts: ["Gấu và nhiều loài động vật ngủ đông để tránh rét.", "Đêm mùa đông thường dài hơn ngày.", "Ở những nơi rất lạnh, nước có thể đóng băng thành tuyết."] },
+            { id: 9, question: "Mặt trời đi trốn\nXuống sau núi đồi\nChim về tổ rồi\nBầu trời tím thẫm.", explanation: "Hoàng hôn", english: "Sunset", image: "hoang-hon.webp", hint: "Lúc mặt trời lặn xuống núi, bầu trời chuyển màu cam đỏ hoặc tím rất đẹp, báo hiệu trời sắp tối.", facts: ["Mặt trời lặn ở hướng Tây.", "Màu sắc đẹp của hoàng hôn do ánh sáng đi qua tầng khí quyển.", "Khi hoàng hôn xuống, gà thường lên chuồng đi ngủ."] },
+            { id: 10, question: "Nắng chiếu trên đầu\nVẽ hình dưới đất\nGiống bé như thật\nChạy theo gót chân.", explanation: "Bóng râm", english: "Shadow", image: "bong-ram.webp", hint: "Cái hình đen sì bám theo chân bé khi đi dưới nắng, bé chạy nó cũng chạy, bé đứng nó cũng đứng.", facts: ["Bóng râm luôn nằm ngược hướng với ánh sáng mặt trời.", "Vào giữa trưa nắng, bóng của bé là ngắn nhất.", "Bóng râm giúp che nắng, ngồi vào đó sẽ mát hơn."] }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        // Elements
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+        const audioContainer = document.getElementById('audio-container');
+        const controlsArea = document.getElementById('controls-area');
+        const mainHeader = document.getElementById('main-header');
+
+        // === BIẾN TOÀN CỤC: Giữ âm thanh không bị trình duyệt xóa ===
+        let currentUtterance = null;
+
+        function playEnglishVoice(event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault(); 
+            }
+            
+            const card = flashcards[currentIndex];
+            if (!card || !card.english) return;
+
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+
+            currentUtterance = new SpeechSynthesisUtterance(card.english);
+            currentUtterance.lang = 'en-US'; 
+            currentUtterance.rate = 0.8;
+            currentUtterance.pitch = 1.0; 
+
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const preferred = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+                                  voices.find(v => v.lang === 'en-US');
+                if (preferred) currentUtterance.voice = preferred;
+            }
+
+            currentUtterance.onend = function() { currentUtterance = null; };
+            currentUtterance.onerror = function(e) { console.error('Audio error:', e); currentUtterance = null; };
+
+            window.speechSynthesis.speak(currentUtterance);
+        }
+
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+        }
+
+        function resetApp() { 
+            if (event) event.stopPropagation(); 
+            if (mainHeader) mainHeader.style.display = 'flex'; 
+            if (controlsArea) controlsArea.style.display = 'flex';
+            if (cardHeader) cardHeader.style.display = 'flex';
+            
+            currentIndex = 0; 
+            isFlipped = false; 
+            showHint = false; 
+            isEndScreen = false; 
+            renderCard(); 
+        }
+
+        function renderEndScreen() {
+            const mainHeader = document.getElementById('main-header');
+            if (mainHeader) mainHeader.style.display = 'none';
+            if (cardHeader) cardHeader.style.display = 'none';
+            if (controlsArea) controlsArea.style.display = 'none';
+
+            contentEl.innerHTML = `
+                <div class="animate-fade-in flex flex-col items-center justify-center w-full h-full px-4">
+                    <div class="relative mb-6">
+                        <div class="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center border-[3px] border-white shadow-lg z-10">
+                            <i data-lucide="medal" class="w-12 h-12 text-orange-500" stroke-width="2"></i>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 bg-orange-100 rounded-full opacity-40 -z-10"></div>
+                    </div>
+                    <h2 class="text-xl md:text-3xl font-black text-slate-900 mb-3 text-center leading-tight whitespace-nowrap">
+                        Chúc mừng! Bé thật là xuất sắc!
+                    </h2>
+                    <p class="text-gray-500 font-medium text-sm md:text-base mb-8 text-center">
+                        Bé đã trả lời đúng hết 10 câu đố rồi.
+                    </p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZwIc0rDhRz0DP6M2ZogmrT3w-GVCQNEIK2Gdc0fjSuv98Jh5G" target="_blank" 
+                       class="animate-heartbeat w-fit inline-flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white px-6 py-3 rounded-full font-bold text-sm uppercase shadow-lg shadow-pink-200 mb-3">
+                        <i data-lucide="shopping-basket" class="w-5 h-5"></i>
+                        XEM SẢN PHẨM TỐT CHO MẸ VÀ BÉ
+                    </a>
+                    <button onclick="resetApp()" 
+                            class="w-fit inline-flex items-center justify-center gap-2 bg-white border-2 border-orange-300 text-orange-600 hover:bg-orange-50 active:bg-orange-100 px-6 py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        Quay về trang đầu
+                    </button>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            if (mainHeader) mainHeader.style.display = 'flex';
+            if (cardHeader) cardHeader.style.display = 'flex';
+            if (controlsArea) controlsArea.style.display = 'flex';
+
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu: ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+                audioContainer.classList.remove('invisible');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-blue-100 text-blue-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+                audioContainer.classList.add('invisible');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-4 flex flex-col items-center h-full justify-center">
+                        <div class="w-fit bg-pink-50/80 rounded-2xl p-6 mb-6 border border-pink-200 shadow-sm relative mx-auto">
+                            <i data-lucide="quote" class="absolute top-2 left-2 w-5 h-5 text-pink-300 fill-current opacity-50"></i>
+                            <h3 class="text-left text-xl md:text-2xl font-bold text-slate-800 leading-relaxed whitespace-pre-line italic relative z-10 pl-2">
+                                "${card.question}"
+                            </h3>
+                        </div>
+                        <div class="flex items-center gap-2 text-pink-600 mt-2 select-none">
+                            <i data-lucide="pointer" class="w-5 h-5 fill-current rotate-90"></i>
+                            <span class="text-sm font-extrabold uppercase tracking-wide">Lật mặt sau để xem đáp án</span>
+                        </div>
+                        ${showHint ? `<div class="mt-4 p-4 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-xl border border-yellow-200 animate-fade-in text-left shadow-inner w-full"><span class="font-bold flex items-center gap-2 mb-1 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-2 shadow-sm">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        
+                        <div class="w-full flex items-center justify-center mb-3 px-2 text-center">
+                            <span class="text-xl md:text-2xl font-bold text-amber-600 uppercase italic tracking-wide leading-none">
+                                ${card.english}
+                            </span>
+                        </div>
+
+                        <div class="w-full bg-blue-50 rounded-2xl p-4 text-left border border-blue-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-blue-900 mb-2 flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-blue-600"></i> 
+                                3 sự thật thú vị:
+                            </p>
+                            <ul class="space-y-1">
+                                ${card.facts.map(fact => `
+                                    <li class="text-[12px] text-gray-700 flex items-start gap-2">
+                                        <span class="text-blue-500 font-bold text-lg leading-none">•</span>
+                                        <span class="leading-tight">${fact}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+
+        window.speechSynthesis.getVoices();
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
