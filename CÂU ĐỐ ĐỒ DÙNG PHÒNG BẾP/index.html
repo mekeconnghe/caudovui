@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Đố vui Đồ dùng phòng bếp - Mẹ Kể Con Nghe">
+    <meta property="og:description" content="Cùng bé khám phá các vật dụng quen thuộc trong gian bếp qua những câu đố vui nhộn!">
+    
+    <meta property="og:url" content="https://dovuidodungphongbep.netlify.app/">
+    <meta property="og:image" content="https://dovuidodungphongbep.netlify.app/thumb.jpg">
+    <meta property="og:image:secure_url" content="https://dovuidodungphongbep.netlify.app/thumb.jpg">
+    
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đố vui Đồ dùng phòng bếp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .img-container { box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+    </style>
+</head>
+<body class="bg-orange-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div class="text-center mb-4 w-full space-y-2">
+        <h1 class="text-xl md:text-2xl font-bold text-orange-700 flex items-center justify-center gap-2">
+            <i data-lucide="utensils" class="w-7 h-7"></i>
+            Đố vui đồ dùng phòng bếp?
+        </h1>
+        <a href="https://zalo.me/g/vlhiiv860" target="_blank" class="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-orange-200 border border-orange-200 transition-colors">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Cộng đồng Mẹ Kể Con Nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-orange-200 noselect"
+            style="min-height: 650px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-4 md:p-6 flex flex-col h-full overflow-y-auto no-scrollbar">
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                    <span id="question-counter">Câu hỏi 1/12</span>
+                    
+                    <div id="audio-container" class="invisible">
+                        <button onclick="playEnglishVoice(event)" class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all border border-blue-200 flex items-center gap-1 active:bg-blue-300">
+                            <i data-lucide="volume-2" class="w-5 h-5"></i>
+                            <span class="text-[10px] font-bold">NGHE</span>
+                        </button>
+                    </div>
+
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-orange-100 text-orange-700">Câu đố</span>
+                </div>
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-orange-600 active:bg-orange-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <audio id="audio-player" style="display:none;"></audio>
+
+    <script>
+        // Dữ liệu câu đố đồ dùng bếp
+        const flashcards = [
+            { 
+                id: 1, 
+                question: "Miệng tròn vành vạnh\nLòng trắng phau phau\nĐựng cơm đựng rau\nBé ăn ngon miệng.", 
+                explanation: "Bát ăn cơm", 
+                english: "Rice bowl", 
+                image: "bat-an-com.webp", 
+                hint: "Đồ vật bằng sứ, nhựa hoặc inox, hình tròn, ngày nào bé cũng cầm để ăn cơm.", 
+                facts: ["Bát gốm Bát Tràng ở Việt Nam rất nổi tiếng.", "Ngày xưa, người ta dùng vỏ dừa khô làm bát ăn cơm.", "Người Nhật Bản thường dùng bát gỗ để đựng súp."] 
+            },
+            { 
+                id: 2, 
+                question: "Hai que thẳng tắp\nSánh bước bên nhau\nGắp thịt gắp rau\nGiúp bé no bụng", 
+                explanation: "Đôi Đũa", 
+                english: "Chopsticks", 
+                image: "doi-dua.webp", 
+                hint: "Luôn phải có hai chiếc bằng nhau mới dùng được, giúp bé gắp thức ăn khéo léo.", 
+                facts: ["Người Trung Quốc là những người đầu tiên phát minh ra đũa.", "Đũa có thể làm bằng tre, gỗ, nhựa hoặc kim loại.", "Dùng đũa giúp rèn luyện sự khéo léo của đôi tay."] 
+            },
+            { 
+                id: 3, 
+                question: "Cán dài miệng nhỏ\nMúc cháo xúc cơm\nĐưa vào miệng thơm\nBé ăn sạch sẽ.", 
+                explanation: "Thìa xúc cơm", 
+                english: "Spoon", 
+                image: "muong-xoi-com.jpg", 
+                hint: "Vật dụng nhỏ nhắn, cán dài, bé cầm tay để đưa thức ăn vào miệng.", 
+                facts: ["Thìa giúp bé ăn cháo và súp dễ dàng hơn dùng đũa.", "Thìa có thể làm bằng inox, nhựa hoặc sứ.", "Ở phương Tây, thìa luôn đi kèm với dao và dĩa (nĩa)."] 
+            },
+            { 
+                id: 4, 
+                question: "Kết từ rơm rạ\nQuét dọn trong nhà\nSạch sẽ nền hoa\nBé ngoan giúp mẹ.", 
+                explanation: "Cái Chổi", 
+                english: "Broom", 
+                image: "cai-choi.jpg", 
+                hint: "Dụng cụ dùng để quét nhà, làm từ bông lúa hoặc cọng rơm vàng óng.", 
+                facts: ["Chổi rơm (chổi lúa) rất phổ biến ở làng quê Việt Nam.", "Trong truyện cổ tích phương Tây, phù thủy hay cưỡi chổi bay.", "Quét nhà giúp không gian sống sạch sẽ và thoáng mát."] 
+            },
+            { 
+                id: 5, 
+                question: "Lửa hồng rực rỡ\nNấu chín thức ăn\nBé chớ lại gần\nKẻo tay bị bỏng", 
+                explanation: "Cái Bếp", 
+                english: "Stove", 
+                image: "cai-bep.jpg", 
+                hint: "Nơi cung cấp nhiệt để nấu chín đồ ăn, rất nóng, bé tuyệt đối không được nghịch.", 
+                facts: ["Ngày xưa ông bà ta thường đun nấu bằng bếp củi hoặc bếp than.", "Bếp từ hiện đại an toàn hơn vì không sinh ra khói.", "Hình ảnh bếp lửa tượng trưng cho sự ấm cúng gia đình."] 
+            },
+            { 
+                id: 6, 
+                question: "Chiếc hộp vuông vuông\nQuay tròn bên trong\nLàm nóng thức ăn\nChỉ trong chớp mắt.", 
+                explanation: "Lò Vi Sóng", 
+                english: "Microwave", 
+                image: "lo-vi-song.jpg", 
+                hint: "Có cửa kính, bên trong có đĩa quay, giúp hâm nóng đồ ăn cực nhanh mà không cần bật bếp.", 
+                facts: ["Tuyệt đối không được cho thìa dĩa kim loại vào lò vi sóng.", "Lò vi sóng làm nóng thức ăn bằng các sóng vô tuyến.", "Nó làm chín thức ăn từ bên trong ra bên ngoài."] 
+            },
+            { 
+                id: 7, 
+                question: "Treo ở trên cao\nHoặc nằm dưới thấp\nBát đĩa ngăn nắp\nXếp hàng ngủ ngoan.", 
+                explanation: "Tủ Bếp", 
+                english: "Kitchen cabinet", 
+                image: "tu-bep.jpg", 
+                hint: "Nơi cất giữ bát đĩa, nồi niêu khi rửa sạch xong để nhà bếp gọn gàng.", 
+                facts: ["Tủ bếp giúp bảo vệ bát đĩa khỏi bụi bẩn và côn trùng.", "Tủ bếp thường được làm bằng gỗ hoặc nhựa cao cấp.", "Cần vệ sinh tủ bếp thường xuyên để tránh nấm mốc."] 
+            },
+            { 
+                id: 8, 
+                question: "Nấu gạo thành cơm\nDẻo thơm nóng hổi\nBé ăn mau lớn\nCả nhà đều vui.", 
+                explanation: "Nồi Cơm Điện", 
+                english: "Rice cooker", 
+                image: "noi-com-dien.jpg", 
+                hint: "Chỉ cần vo gạo, đổ nước rồi cắm điện, một lúc sau là có cơm ăn ngay.", 
+                facts: ["Nồi cơm điện được phát minh tại Nhật Bản.", "Khi cơm chín, nồi sẽ tự động nhảy sang chế độ giữ ấm.", "Ngoài nấu cơm, nồi còn có thể dùng để nấu cháo hoặc làm bánh."] 
+            },
+            { 
+                id: 9, 
+                question: "Cán dài lòng sâu\nMúc canh nóng hổi\nMẹ múc mẹ thổi\nCho bé ăn ngon", 
+                explanation: "Muỗng Xúc Canh", 
+                english: "Soup ladle", 
+                image: "muong-muc-canh.jpg", 
+                hint: "Còn gọi là cái môi (cái vá), dùng để múc nước canh từ nồi to ra bát nhỏ.", 
+                facts: ["Muỗng canh có cán dài để tay không bị hơi nóng làm bỏng.", "Thường được làm bằng inox sáng bóng hoặc nhựa chịu nhiệt.", "Có loại muỗng có lỗ (muỗng thủng) dùng để vớt đồ ăn."] 
+            },
+            { 
+                id: 10, 
+                question: "Đứng im một góc\nMà lạnh run người\nBảo quản đồ tươi\nKem ngon mát rượi?", 
+                explanation: "Tủ Lạnh", 
+                english: "Refrigerator", 
+                image: "tu-lanh.jpg", 
+                hint: "Cắm điện suốt ngày đêm, mở ra thấy mát lạnh, có ngăn làm đá và kem.", 
+                facts: ["Không nên mở cửa tủ lạnh quá lâu sẽ tốn điện.", "Ngăn đá có nhiệt độ dưới 0 độ C để làm đông thực phẩm.", "Tủ lạnh giúp vi khuẩn không phát triển, giữ đồ ăn tươi lâu."] 
+            },
+            { 
+                id: 11, 
+                question: "Lòng nông cán dài\nRán trứng vàng ươm\nTỏa ngát mùi thơm\nBé ăn thích quá.", 
+                explanation: "Cái Chảo", 
+                english: "Frying pan", 
+                image: "cai-chao.jpg", 
+                hint: "Dụng cụ dùng để chiên (rán) hoặc xào, đáy phẳng và rộng.", 
+                facts: ["Chảo chống dính giúp rán trứng không bị sát chảo.", "Chảo gang giữ nhiệt rất lâu và nấu ăn rất ngon.", "Không nên dùng thìa sắt cạo vào lòng chảo chống dính."] 
+            },
+            { 
+                id: 12, 
+                question: "Có cán cầm tay\nLưỡi sắc sáng ngời\nBé chớ có chơi\nĐứt tay chảy máu.", 
+                explanation: "Con Dao", 
+                english: "Knife", 
+                image: "con-dao.jpg", 
+                hint: "Vật dụng sắc nhọn dùng để thái thịt, gọt hoa quả. Rất nguy hiểm với trẻ em.", 
+                facts: ["Dao cùn thực ra nguy hiểm hơn dao sắc vì dễ bị trượt.", "Mỗi đầu bếp chuyên nghiệp đều có bộ dao riêng của mình.", "Dao thường được làm từ thép không gỉ rất cứng."] 
+            }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+        const audioContainer = document.getElementById('audio-container');
+        const audioPlayer = document.getElementById('audio-player');
+
+        function playEnglishVoice(event) {
+            event.stopPropagation();
+            const card = flashcards[currentIndex];
+            if (card && card.english) {
+                // Link Google TTS mới (đảm bảo nghe được trên mobile/Zalo)
+                const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(card.english)}&tl=en`;
+                audioPlayer.src = audioUrl;
+                audioPlayer.play().catch(error => {
+                    console.error("Lỗi phát âm thanh:", error);
+                    fallbackSpeech(card.english);
+                });
+            }
+        }
+
+        function fallbackSpeech(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            cardHeader.style.display = 'flex';
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu hỏi ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+                audioContainer.classList.remove('invisible');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-orange-100 text-orange-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+                audioContainer.classList.add('invisible');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-4 whitespace-pre-line italic text-orange-900">"${card.question}"</h3>
+                        ${showHint ? `<div class="mt-4 p-5 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-2xl border border-yellow-200 animate-fade-in text-left shadow-inner"><span class="font-bold flex items-center gap-2 mb-2 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-4">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        <div class="text-2xl font-black text-orange-700 uppercase tracking-tight mb-1">${card.explanation}</div>
+                        <div class="text-lg font-bold text-blue-600 mb-4 tracking-widest flex items-center gap-2 uppercase italic">
+                           <span>-</span> ${card.english} <span>-</span>
+                        </div>
+                        <div class="w-full bg-orange-50 rounded-2xl p-4 text-left border border-orange-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-orange-900 mb-2 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-orange-600"></i> 3 sự thật thú vị:</p>
+                            <ul class="space-y-1">${card.facts.map(fact => `<li class="text-[12px] text-gray-700 flex items-start gap-2"><span class="text-orange-500 font-bold">•</span><span>${fact}</span></li>`).join('')}</ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderEndScreen() {
+            cardHeader.style.display = 'none';
+            btnHint.disabled = true;
+            audioContainer.classList.add('invisible');
+            btnNext.innerHTML = 'Kết thúc';
+            contentEl.innerHTML = `
+                <div class="animate-fade-in text-center px-4">
+                    <div class="mb-6 bg-orange-100 p-6 rounded-full inline-block animate-bounce"><i data-lucide="party-popper" class="w-12 h-12 text-orange-600"></i></div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">Hoan hô bé giỏi quá!</h2>
+                    <p class="text-gray-600 mb-8">Bé đã trả lời đúng hết 12 câu đố về nhà bếp rồi!</p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZsJd0quribUCkIP5roWjaPPcESPLAtCHYAUbnDTeA5SCfhpS0" target="_blank" class="flex items-center justify-center gap-3 bg-pink-500 hover:bg-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg transition-all hover:scale-105 transform"><i data-lucide="shopping-bag" class="w-6 h-6"></i>Sản phẩm cho Mẹ và Bé</a>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+        function resetApp() { if (event) event.stopPropagation(); currentIndex = 0; isFlipped = false; showHint = false; isEndScreen = false; renderCard(); }
+
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
