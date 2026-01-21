@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Đố vui Đồ dùng vệ sinh - Mẹ Kể Con Nghe">
+    <meta property="og:description" content="Cùng bé khám phá các vật dụng vệ sinh cá nhân giúp bé sạch sẽ thơm tho mỗi ngày!">
+    
+    <meta property="og:url" content="https://dovuidodungnhatam.netlify.app/">
+    <meta property="og:image" content="https://dovuidodungnhatam.netlify.app/thumb.jpg">
+    <meta property="og:image:secure_url" content="https://dovuidodungnhatam.netlify.app/thumb.jpg">
+    
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đố vui Đồ dùng vệ sinh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .img-container { box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+    </style>
+</head>
+<body class="bg-cyan-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div class="text-center mb-4 w-full space-y-2">
+        <h1 class="text-xl md:text-2xl font-bold text-cyan-700 flex items-center justify-center gap-2">
+            <i data-lucide="droplets" class="w-7 h-7"></i>
+            Đồ Dùng Nhà Tắm?
+        </h1>
+        <a href="https://zalo.me/g/vlhiiv860" target="_blank" class="inline-flex items-center gap-2 bg-cyan-100 text-cyan-800 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-cyan-200 border border-cyan-200 transition-colors">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Cộng đồng Mẹ Kể Con Nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-cyan-200 noselect"
+            style="min-height: 650px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-4 md:p-6 flex flex-col h-full overflow-y-auto no-scrollbar">
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                    <span id="question-counter">Câu hỏi 1/10</span>
+                    
+                    <div id="audio-container" class="invisible">
+                        <button onclick="playEnglishVoice(event)" class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all border border-blue-200 flex items-center gap-1 active:bg-blue-300">
+                            <i data-lucide="volume-2" class="w-5 h-5"></i>
+                            <span class="text-[10px] font-bold">NGHE</span>
+                        </button>
+                    </div>
+
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-cyan-100 text-cyan-700">Câu đố</span>
+                </div>
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-cyan-600 active:bg-cyan-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <audio id="audio-player" style="display:none;"></audio>
+
+    <script>
+        // Dữ liệu câu đố đồ dùng vệ sinh
+        const flashcards = [
+            { 
+                id: 1, 
+                question: "Cán cầm bé xíu\nLông mượt trắng tinh\nGiúp bé đẹp xinh\nRăng cười tỏa nắng?", 
+                explanation: "Bàn Chải Đánh Răng", 
+                english: "Toothbrush", 
+                image: "ban-chai-danh-rang.webp", 
+                hint: "Người bạn nhỏ này ngày nào cũng gặp bé 2 lần, sáng ngủ dậy và tối trước khi đi ngủ, giúp đánh bay sâu răng.", 
+                facts: ["Nên thay bàn chải 3 tháng một lần để đảm bảo vệ sinh.", "Ngày xưa, người ta dùng cành cây nhỏ đập dập đầu để chải răng.", "Bàn chải điện có thể chải sạch hơn bàn chải thường rất nhiều."] 
+            },
+            { 
+                id: 2, 
+                question: "Tuýp kem nho nhỏ\nVị ngọt hương dâu\nBé chải sạch sâu\nRăng cười trắng bóng?", 
+                explanation: "Kem Đánh Răng", 
+                english: "Toothpaste", 
+                image: "kem-danh-rang.webp", 
+                hint: "Luôn đi kèm với bàn chải, có vị ngọt và thơm mát, giúp hơi thở thơm tho nhưng bé nhớ đừng nuốt nhé.", 
+                facts: ["Trong kem đánh răng có chất Fluoride giúp răng chắc khỏe.", "Chỉ cần lấy một lượng kem bằng hạt đậu là đủ dùng.", "Kem đánh răng đầu tiên trên thế giới được làm từ... vỏ trứng nghiền nát."] 
+            },
+            { 
+                id: 3, 
+                question: "Chiếc khăn nhỏ xíu\nMàu sắc đẹp xinh\nLau mặt trắng tinh\nBé cười rạng rỡ?", 
+                explanation: "Khăn Mặt", 
+                english: "Face towel", 
+                image: "khan-mat.webp", 
+                hint: "Làm bằng vải bông mềm mại, dùng để rửa mặt buổi sáng cho tỉnh táo hoặc lau khô mặt sau khi rửa.", 
+                facts: ["Nên giặt khăn mặt hàng ngày và phơi nắng để diệt vi khuẩn.", "Khăn làm từ sợi tre (bamboo) thường mềm và thấm hút tốt hơn.", "Không nên dùng chung khăn mặt để tránh lây bệnh đau mắt."] 
+            },
+            { 
+                id: 4, 
+                question: "Phun mưa rào rào\nTắm mát biết bao\nBé cười xôn xao\nThích mê thích mệt?", 
+                explanation: "Vòi Hoa Sen", 
+                english: "Shower head", 
+                image: "voi-hoa-sen.webp", 
+                hint: "Dụng cụ trong nhà tắm phun ra rất nhiều tia nước nhỏ như những hạt mưa nhân tạo.", 
+                facts: ["Tắm vòi hoa sen tiết kiệm nước hơn tắm bồn rất nhiều.", "Nước ấm từ vòi sen giúp cơ thể thư giãn sau khi chơi đùa.", "Có những loại vòi sen có đèn LED đổi màu rất đẹp."] 
+            },
+            { 
+                id: 5, 
+                question: "Tạo nhiều bọt trắng\nGội tóc mượt mà\nThơm ngát hương hoa\nYêu bé nhất nhà?", 
+                explanation: "Dầu Gội Đầu", 
+                english: "Shampoo", 
+                image: "dau-goi.webp", 
+                hint: "Chất lỏng thơm phức dùng để làm sạch tóc và da đầu, cẩn thận kẻo rớt vào mắt sẽ bị cay đấy.", 
+                facts: ["Dầu gội cho bé thường có công thức 'không cay mắt'.", "Mát-xa nhẹ da đầu khi gội giúp tóc mọc khỏe hơn.", "Không nên gội đầu bằng nước quá nóng sẽ làm tóc bị khô."] 
+            },
+            { 
+                id: 6, 
+                question: "Miệng thổi gió ấm\nTiếng kêu o o\nTóc ướt tóc khô\nChỉ trong chớp mắt?", 
+                explanation: "Máy Sấy Tóc", 
+                english: "Hair dryer", 
+                image: "may-say-toc.webp", 
+                hint: "Dùng điện để thổi ra gió nóng, giúp tóc khô nhanh sau khi tắm gội xong.", 
+                facts: ["Không nên để máy sấy quá gần tóc để tránh bị nóng.", "Máy sấy hoạt động bằng cách thổi không khí qua một cuộn dây nóng.", "Nên dùng chế độ gió mát để bảo vệ tóc tốt hơn."] 
+            },
+            { 
+                id: 7, 
+                question: "Bọt thơm trắng xóa\nXoa đều bàn tay\nVi khuẩn bay ngay\nTay xinh sạch sẽ?", 
+                explanation: "Nước Rửa Tay", 
+                english: "Hand soap", 
+                image: "nuoc-rua-tay.webp", 
+                hint: "Cần dùng vật này để rửa tay trước khi ăn và sau khi đi vệ sinh để phòng bệnh.", 
+                facts: ["Nên rửa tay ít nhất 20 giây (bằng thời gian hát bài Happy Birthday).", "Rửa tay là cách đơn giản nhất để phòng ngừa các bệnh lây nhiễm.", "Bọt xà phòng giúp cuốn trôi vi khuẩn đi dễ dàng hơn."] 
+            },
+            { 
+                id: 8, 
+                question: "Cái bệ trắng tinh\nChứa nước sạch trong\nĐi vệ sinh xong\nBé ấn nút xả?", 
+                explanation: "Bồn Cầu", 
+                english: "Toilet", 
+                image: "bon-cau.webp", 
+                hint: "Nơi bé đi vệ sinh hàng ngày, nhớ phải xả nước và đậy nắp lại sau khi dùng nhé.", 
+                facts: ["Nên đậy nắp bồn cầu trước khi xả nước để vi khuẩn không bay ra ngoài.", "Người Nhật Bản có những chiếc bồn cầu thông minh tự động mở nắp.", "Cần giữ bồn cầu sạch sẽ để nhà vệ sinh luôn thơm tho."] 
+            },
+            { 
+                id: 9, 
+                question: "Chiếc chậu men trắng\nĐón dòng nước trong\nRửa tay sạch bong\nBé cười mát mẻ?", 
+                explanation: "Bồn Rửa Tay", 
+                english: "Sink", 
+                image: "bon-rua-tay.webp", 
+                hint: "Cái chậu gắn trên tường hoặc bàn đá, có vòi nước chảy vào, dùng để rửa tay, rửa mặt.", 
+                facts: ["Không nên để vòi nước chảy liên tục khi đang xát xà phòng.", "Bồn rửa thường làm bằng sứ trắng để dễ cọ rửa.", "Nước ấm giúp diệt vi khuẩn trên tay tốt hơn nước lạnh."] 
+            },
+            { 
+                id: 10, 
+                question: "Đôi dép có lỗ\nĐi lại nhẹ nhàng\nChân bước rộn ràng\nKhông lo trượt ngã?", 
+                explanation: "Dép Đi Trong Nhà Tắm", 
+                english: "Bathroom slippers", 
+                image: "dep-di-trong-nha-tam.webp", 
+                hint: "Đôi dép làm bằng nhựa hoặc cao su, đế có nhiều rãnh để đi trong nhà tắm không bị trơn trượt.", 
+                facts: ["Dép nhà tắm thường có lỗ để thoát nước nhanh khô.", "Đi dép giúp giữ chân bé khô ráo và không bị lạnh gan bàn chân.", "Cần cọ rửa dép thường xuyên để không bị rêu mốc bám vào."] 
+            }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+        const audioContainer = document.getElementById('audio-container');
+        const audioPlayer = document.getElementById('audio-player');
+
+        // HÀM ĐỌC TIẾNG ANH (Fix lỗi Mobile & Zalo)
+        function playEnglishVoice(event) {
+            event.stopPropagation();
+            const card = flashcards[currentIndex];
+            if (card && card.english) {
+                // Sử dụng Google TTS API - Cách duy nhất ổn định trên mọi thiết bị
+                const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(card.english)}&tl=en`;
+                
+                audioPlayer.src = audioUrl;
+                audioPlayer.play().catch(error => {
+                    console.error("Lỗi phát âm thanh:", error);
+                    // Fallback
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(card.english);
+                        utterance.lang = 'en-US';
+                        window.speechSynthesis.speak(utterance);
+                    }
+                });
+            }
+        }
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            cardHeader.style.display = 'flex';
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu hỏi ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+                audioContainer.classList.remove('invisible');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-cyan-100 text-cyan-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+                audioContainer.classList.add('invisible');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-4 whitespace-pre-line italic text-cyan-900">"${card.question}"</h3>
+                        ${showHint ? `<div class="mt-4 p-5 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-2xl border border-yellow-200 animate-fade-in text-left shadow-inner"><span class="font-bold flex items-center gap-2 mb-2 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-4">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        <div class="text-2xl font-black text-cyan-700 uppercase tracking-tight mb-1">${card.explanation}</div>
+                        <div class="text-lg font-bold text-blue-600 mb-4 tracking-widest flex items-center gap-2 uppercase italic">
+                           <span>-</span> ${card.english} <span>-</span>
+                        </div>
+                        <div class="w-full bg-cyan-50 rounded-2xl p-4 text-left border border-cyan-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-cyan-900 mb-2 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-cyan-600"></i> 3 sự thật thú vị:</p>
+                            <ul class="space-y-1">${card.facts.map(fact => `<li class="text-[12px] text-gray-700 flex items-start gap-2"><span class="text-cyan-500 font-bold">•</span><span>${fact}</span></li>`).join('')}</ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderEndScreen() {
+            cardHeader.style.display = 'none';
+            btnHint.disabled = true;
+            audioContainer.classList.add('invisible');
+            btnNext.innerHTML = 'Kết thúc';
+            contentEl.innerHTML = `
+                <div class="animate-fade-in text-center px-4">
+                    <div class="mb-6 bg-cyan-100 p-6 rounded-full inline-block animate-bounce"><i data-lucide="party-popper" class="w-12 h-12 text-cyan-600"></i></div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">Hoan hô bé giỏi quá!</h2>
+                    <p class="text-gray-600 mb-8">Bé đã trả lời đúng hết 10 câu đố về đồ dùng vệ sinh rồi!</p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZsJd0quribUCkIP5roWjaPPcESPLAtCHYAUbnDTeA5SCfhpS0" target="_blank" class="flex items-center justify-center gap-3 bg-pink-500 hover:bg-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg transition-all hover:scale-105 transform"><i data-lucide="shopping-bag" class="w-6 h-6"></i>Sản phẩm cho Mẹ và Bé</a>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+        function resetApp() { if (event) event.stopPropagation(); currentIndex = 0; isFlipped = false; showHint = false; isEndScreen = false; renderCard(); }
+
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
