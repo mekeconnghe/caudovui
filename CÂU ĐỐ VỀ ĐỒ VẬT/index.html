@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Đố Vui Đồ Vật Cho Bé - Mẹ Kể Con Nghe">
+    <meta property="og:description" content="Khám phá thế giới đồ vật quanh ta qua những câu đố vui nhộn và học tiếng Anh cùng bé">
+    <meta property="og:url" content="https://caudovuidovatchobe.netlify.app/">
+    <meta property="og:image" content="https://caudovuidovatchobe.netlify.app/thumb.jpg">
+    <meta property="og:image:secure_url" content="https://caudovuidovatchobe.netlify.app/thumb.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đố Vui Đồ Vật Cho Bé - Mẹ Kể Con Nghe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .img-container { box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+    </style>
+</head>
+<body class="bg-rose-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div class="text-center mb-4 w-full space-y-2">
+        <h1 class="text-xl md:text-2xl font-bold text-rose-700 flex items-center justify-center gap-2">
+            <i data-lucide="sparkles" class="w-7 h-7"></i>
+            Bé giải đố đồ vật nhé!
+        </h1>
+        <a href="https://zalo.me/g/vlhiiv860" target="_blank" class="inline-flex items-center gap-2 bg-rose-100 text-rose-800 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-rose-200 border border-rose-200 transition-colors">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Cộng đồng Mẹ Kể Con Nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-rose-200 noselect"
+            style="min-height: 650px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-4 md:p-6 flex flex-col h-full overflow-y-auto no-scrollbar">
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                    <span id="question-counter">Câu hỏi 1/16</span>
+                    
+                    <div id="audio-container" class="invisible">
+                        <button onclick="playEnglishVoice(event)" class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all border border-blue-200 flex items-center gap-1">
+                            <i data-lucide="volume-2" class="w-5 h-5"></i>
+                            <span class="text-[10px] font-bold">NGHE</span>
+                        </button>
+                    </div>
+
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-rose-100 text-rose-700">Câu đố</span>
+                </div>
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-rose-600 active:bg-rose-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { id: 1, question: "Một đàn cò trắng phau phau\nĂn no tắm mát rủ nhau đi nằm", explanation: "Cái Bát", english: "Bowl", image: "cai-bat.webp", hint: "Đồ vật hình tròn, lòng sâu, thường làm bằng sứ hoặc nhựa, bé dùng để đựng cơm ăn hàng ngày.", facts: ["Chiếc bát gốm cổ nhất thế giới có tuổi đời khoảng 18.000 năm.", "Người xưa từng làm bát từ sọ dừa hoặc gỗ.", "Bát đĩa sứ nung ở nhiệt độ cao rất bền và an toàn."] },
+            { id: 2, question: "Một mẹ thường có sáu con\nYêu thương mẹ sẻ nước non vơi đầy.", explanation: "Bộ Ấm Chén", english: "Tea set", image: "bo-am-chen.webp", hint: "Gồm một vật lớn đựng nước trà (mẹ) và 6 vật nhỏ xung quanh để uống (con), thường thấy trên bàn tiếp khách.", facts: ["Uống trà là một nét văn hóa đẹp của người Việt Nam.", "Bộ ấm chén Bát Tràng rất nổi tiếng về độ tinh xảo.", "Rót trà mời khách thể hiện sự hiếu khách và tôn trọng."] },
+            { id: 3, question: "Xe gì hai bánh\nĐạp chạy bon bon\nChuông kêu kính coong\nĐứng yên thì đổ?", explanation: "Xe Đạp", english: "Bicycle", image: "xe-dap.webp", hint: "Một phương tiện giúp đôi chân bé thêm khỏe mạnh, có bàn đạp và chiếc chuông kêu 'kính coong' vui tai.", facts: ["Chiếc xe đạp đầu tiên được làm hoàn toàn bằng gỗ.", "Đi xe đạp giúp đôi chân bé khỏe mạnh và nhanh nhẹn hơn.", "Có hơn 1 tỷ chiếc xe đạp đang được sử dụng trên thế giới."] },
+            { id: 4, question: "Như chiếc vòi rồng\nMồm uống nước sông\nPhun ra cánh đồng\nBọt tung trắng xóa.", explanation: "Máy Bơm Nước", english: "Water pump", image: "may-bom.webp", hint: "Một cỗ máy có động cơ mạnh mẽ, giúp hút nước từ dưới thấp lên cao để tưới tiêu cho đồng ruộng.", facts: ["Archimedes là người phát minh ra nguyên lý bơm trục vít.", "Máy bơm giúp nông dân đỡ vất vả khi tưới ruộng.", "Ngày nay có cả máy bơm chạy bằng năng lượng mặt trời."] },
+            { id: 5, question: "Miệng tròn, lòng trắng phau phau\nĐựng cơm, đựng thịt, đựng rau hàng ngày.", explanation: "Cái Đĩa", english: "Plate", image: "cai-dia.webp", hint: "Giống cái bát nhưng nông hơn và bè ra, thường dùng để đựng thức ăn mặn hoặc rau xào.", facts: ["Đĩa giúp trình bày món ăn đẹp mắt hơn.", "Đĩa dùng một lần thường làm từ giấy hoặc bã mía.", "Người châu Âu xưa dùng bánh mì cứng làm đĩa đựng thức ăn."] },
+            { id: 6, question: "Được đan từ những nan tre\nMùa đông xếp lại, mùa hè lấy ra\nBà ngồi dùng trước hiên nhà\nCó tôi bên cạnh, bao la gió về", explanation: "Cái Quạt Nan", english: "Bamboo fan", image: "quat-nan.webp", hint: "Vật dụng làm thủ công từ tre, phe phẩy trên tay bà để tạo gió mát những trưa hè mất điện.", facts: ["Quạt nan là hình ảnh thân thuộc của làng quê Việt Nam.", "Làm quạt nan đòi hỏi sự khéo léo khi vót tre.", "Gió từ quạt nan rất nhẹ nhàng, dễ chịu cho bé ngủ."] },
+            { id: 7, question: "Ai muốn chân sạch\nThì dùng đến tôi\nNhưng phải một đôi\nNâng niu chân bạn", explanation: "Đôi Dép", english: "Sandals", image: "doi-dep.webp", hint: "Bé xỏ chân vào vật này để đi lại, giúp giữ sạch đôi bàn chân và không bị đau khi dẫm lên sỏi đá.", facts: ["Đôi dép cổ nhất thế giới được làm từ vỏ cây.", "Dép tổ ong là loại dép 'huyền thoại' ở Việt Nam.", "Mang dép trong nhà giúp giữ ấm bàn chân vào mùa đông."] },
+            { id: 8, question: "Cái gì nho nhỏ\nMà có nhiều răng\nGiúp bé siêng năng\nNgày ngày chải tóc?", explanation: "Cái Lược", english: "Comb", image: "cai-luoc.webp", hint: "Có rất nhiều 'chiếc răng' nhỏ xếp hàng đều tăm tắp, là bạn thân giúp mái tóc bé suôn mượt gọn gàng.", facts: ["Lược đã được con người sử dụng từ hàng ngàn năm trước.", "Chải đầu nhẹ nhàng giúp máu lưu thông tốt hơn.", "Lược sừng trâu rất tốt cho tóc và da đầu."] },
+            { id: 9, question: "Có chân mà chẳng biết đi\nCó mặt phẳng lì cho bé ngồi lên.", explanation: "Cái Ghế", english: "Chair", image: "cai-ghe.webp", hint: "Thường có 4 chân vững chãi, đặt cạnh cái bàn, là nơi bé ngồi học bài hoặc nghỉ ngơi.", facts: ["Ghế đẩu là loại ghế không có tựa lưng.", "Có những chiếc ghế thông minh giúp chống gù lưng.", "Vua chúa ngày xưa ngồi trên ghế gọi là Ngai vàng."] },
+            { id: 10, question: "Chẳng phải là chim\nNhưng bay trên trời\nChở được nhiều người\nĐi nơi họ muốn", explanation: "Máy Bay", english: "Airplane", image: "may-bay.webp", hint: "Một phương tiện khổng lồ có đôi cánh sắt, bay vút lên cao qua cả những đám mây.", facts: ["Anh em nhà Wright là người phát minh ra máy bay.", "Máy bay là phương tiện di chuyển an toàn nhất.", "Lốp máy bay rất bền, chịu được lực cực lớn khi hạ cánh."] },
+            { id: 11, question: "Muốn tìm nam, bắc, đông, tây\nNhìn mặt tôi sẽ biết ngay hướng nào?", explanation: "La Bàn", english: "Compass", image: "la-ban.webp", hint: "Có kim nam châm luôn chỉ về hướng Bắc, giúp các chú bộ đội hay nhà thám hiểm không bị lạc đường.", facts: ["La bàn là một trong 4 phát minh vĩ đại của Trung Quốc cổ đại.", "Kim la bàn hoạt động dựa trên từ trường Trái Đất.", "Ngày nay điện thoại cũng có ứng dụng la bàn điện tử."] },
+            { id: 12, question: "Cái gì bật sáng trong đêm\nGiúp cho nhà dưới, nhà trên sáng ngời", explanation: "Bóng Đèn", english: "Light bulb", image: "bong-den.webp", hint: "Chỉ cần bật công tắc là vật này tỏa sáng rực rỡ, xua tan bóng tối trong nhà.", facts: ["Thomas Edison là người hoàn thiện bóng đèn điện.", "Bóng đèn LED giúp tiết kiệm điện và bền hơn.", "Ánh sáng vàng giúp mắt đỡ mỏi hơn ánh sáng trắng."] },
+            { id: 13, question: "Hai anh cùng dáng, cùng hình\nChẳng đi đâu cả, cứ tình với nhau\nGắp rau, gắp thịt mau mau\nGiúp bé ăn uống, trước sau no tròn", explanation: "Đôi Đũa", english: "Chopsticks", image: "doi-dua.webp", hint: "Luôn đi thành một đôi, giúp bé gắp thức ăn khéo léo thay vì dùng thìa xúc.", facts: ["Dùng đũa giúp rèn luyện sự khéo léo của đôi tay.", "Đũa tre và đũa gỗ là phổ biến nhất ở Việt Nam.", "Khi ăn không nên cắm đũa thẳng đứng vào bát cơm."] },
+            { id: 14, question: "Là kim mà chẳng biết khâu\nNgắn, dài cứ chạy cùng nhau suốt đời\nĐứng lại là chết mất rồi\nMiệt mài, chăm chỉ giúp người sớm trưa", explanation: "Đồng Hồ", english: "Clock", image: "dong-ho.webp", hint: "Trên mặt có các con số và 3 cây kim chạy vòng quanh để báo giờ giấc cho mọi người.", facts: ["Kim ngắn chỉ giờ, kim dài chỉ phút, kim mảnh chỉ giây.", "Đồng hồ cát dùng cát chảy để đo thời gian.", "Đồng hồ Big Ben là biểu tượng nổi tiếng của nước Anh."] },
+            { id: 15, question: "Cây gì không lá, không hoa\nSáng đêm sinh nhật cả nhà vây quanh", explanation: "Cây Nến", english: "Candle", image: "cay-nen.webp", hint: "Thân hình trụ bằng sáp, trên đầu có bấc lửa, thường được thắp sáng lung linh trên bánh sinh nhật.", facts: ["Nến sinh nhật tượng trưng cho ánh sáng và hy vọng.", "Trước khi có điện, nến là nguồn sáng chủ yếu.", "Nến thơm có thể giúp thư giãn tinh thần."] },
+            { id: 16, question: "Dù đứng yên một chỗ\nVẫn đưa bạn lên cao\nBạn bước cho cẩn thận\nKẻo có khi ngã nhào", explanation: "Cái Thang", english: "Ladder", image: "cai-thang.webp", hint: "Có nhiều bậc xếp chồng lên nhau, giúp bố leo lên cao để sửa bóng đèn hoặc sơn nhà.", facts: ["Thang tre rất phổ biến ở các vùng quê.", "Thang nhôm rút gọn có thể thu nhỏ lại rất tiện lợi.", "Khi leo thang cần đảm bảo thang đứng vững chãi."] }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+        const audioContainer = document.getElementById('audio-container');
+
+        function playEnglishVoice(event) {
+            event.stopPropagation();
+            const card = flashcards[currentIndex];
+            if (card && card.english) {
+                const utterance = new SpeechSynthesisUtterance(card.english);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            cardHeader.style.display = 'flex';
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu hỏi ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+                audioContainer.classList.remove('invisible');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-rose-100 text-rose-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+                audioContainer.classList.add('invisible');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-4 whitespace-pre-line italic text-rose-900">"${card.question}"</h3>
+                        ${showHint ? `<div class="mt-4 p-5 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-2xl border border-yellow-200 animate-fade-in text-left shadow-inner"><span class="font-bold flex items-center gap-2 mb-2 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-4">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        <div class="text-2xl font-black text-green-700 uppercase tracking-tight mb-1">${card.explanation}</div>
+                        <div class="text-lg font-bold text-blue-600 mb-4 tracking-widest flex items-center gap-2 uppercase italic">
+                           <span>-</span> ${card.english} <span>-</span>
+                        </div>
+                        <div class="w-full bg-green-50 rounded-2xl p-4 text-left border border-green-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-green-900 mb-2 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-green-600"></i> 3 sự thật thú vị:</p>
+                            <ul class="space-y-1">${card.facts.map(fact => `<li class="text-[12px] text-gray-700 flex items-start gap-2"><span class="text-green-500 font-bold">•</span><span>${fact}</span></li>`).join('')}</ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderEndScreen() {
+            cardHeader.style.display = 'none';
+            btnHint.disabled = true;
+            audioContainer.classList.add('invisible');
+            btnNext.innerHTML = 'Kết thúc';
+            contentEl.innerHTML = `
+                <div class="animate-fade-in text-center px-4">
+                    <div class="mb-6 bg-rose-100 p-6 rounded-full inline-block animate-bounce"><i data-lucide="party-popper" class="w-12 h-12 text-rose-600"></i></div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">Hoan hô bé giỏi quá!</h2>
+                    <p class="text-gray-600 mb-8">Bé đã trả lời đúng hết ${flashcards.length} câu đố rồi!</p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZsJd0quribUCkIP5roWjaPPcESPLAtCHYAUbnDTeA5SCfhpS0" target="_blank" class="flex items-center justify-center gap-3 bg-pink-500 hover:bg-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg transition-all hover:scale-105 transform"><i data-lucide="shopping-bag" class="w-6 h-6"></i>Sản phẩm cho Mẹ và Bé</a>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+        function resetApp() { if (event) event.stopPropagation(); currentIndex = 0; isFlipped = false; showHint = false; isEndScreen = false; renderCard(); }
+
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
