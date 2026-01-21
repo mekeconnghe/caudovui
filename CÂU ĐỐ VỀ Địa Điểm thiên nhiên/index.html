@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đố vui Địa điểm và Thiên nhiên</title>
+    
+    <meta property="og:type" content="website">
+<meta property="og:url" content="https://caudovuivethiennhien.netlify.app">
+<meta property="og:title" content="Đố vui Địa điểm & Thiên nhiên - Bé yêu khám phá">
+<meta property="og:description" content="Cùng bé giải đố về thiên nhiên kỳ thú: Biển cả, rừng xanh, núi cao qua những bài thơ hay!">
+<meta property="og:image" content="https://caudovuivethiennhien.netlify.app/thumb.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Áp dụng phông chữ mềm mại */
+        .font-soft { font-family: 'Quicksand', sans-serif; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+    </style>
+</head>
+<body class="bg-green-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div id="main-header" class="flex flex-col items-center justify-center w-full mb-4 gap-3">
+        <h1 class="text-xl md:text-2xl font-bold text-green-700 flex items-center justify-center gap-2 text-center">
+            <i data-lucide="mountain-snow" class="w-7 h-7"></i>
+            Đố vui Địa điểm & Thiên nhiên
+        </h1>
+        
+        <a href="https://zalo.me/g/hirmwg741" target="_blank" class="font-soft w-fit inline-flex items-center gap-2 bg-pink-500 text-white px-5 py-2.5 rounded-full text-[15px] font-bold hover:bg-pink-600 border-2 border-pink-500 transition-all shadow-md">
+            <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
+            Tham gia cộng đồng Mẹ kể con nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4 flex-grow">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-green-200 noselect"
+            style="min-height: 600px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-3 flex flex-col h-full overflow-y-auto no-scrollbar">
+                
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-pink-500 mb-0">
+                    <span id="question-counter">Câu: 1/10</span>
+                    
+                    <div id="audio-container" class="invisible">
+                        <button onclick="playEnglishVoice(event)" class="py-1 px-3 rounded-full bg-amber-100 text-amber-600 hover:bg-amber-200 transition-all border border-amber-200 flex items-center gap-1 active:scale-90">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                            <span class="text-[10px] font-bold">NGHE</span>
+                        </button>
+                    </div>
+
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-green-100 text-green-700">Câu đố</span>
+                </div>
+
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls-area" class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-green-600 active:bg-green-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu câu đố chủ đề ĐỊA ĐIỂM & THIÊN NHIÊN
+        const flashcards = [
+            { 
+                id: 1, 
+                question: "Toàn là cát trắng\nNắng nóng chói chang\nLạc đà xếp hàng\nĐi tìm bóng mát?", 
+                explanation: "Sa mạc", 
+                english: "Desert", 
+                image: "sa-mac.webp", 
+                hint: "Nơi đây toàn là cát nóng bỏng, rất ít khi có mưa, chỉ có loài xương rồng gai góc mới sống nổi thôi.", 
+                facts: ["Sa mạc Sahara là sa mạc nóng lớn nhất thế giới.", "Lạc đà có thể nhịn uống nước rất lâu nhờ cái bướu.", "Ban ngày sa mạc rất nóng nhưng ban đêm lại rất lạnh."] 
+            },
+            { 
+                id: 2, 
+                question: "Mênh mông bát ngát\nSóng vỗ rì rào\nBãi cát trắng phau\nNước xanh mặn chát?", 
+                explanation: "Biển Cả", 
+                english: "Ocean", 
+                image: "bien-ca.webp", 
+                hint: "Nơi có bãi cát trắng trải dài và làn nước xanh mát lạnh mênh mông, bé thường được ba mẹ cho đi tắm vào mỗi dịp nghỉ hè.", 
+                facts: ["Biển chiếm phần lớn diện tích bề mặt Trái Đất.", "Nước biển mặn là do có chứa muối.", "Cá voi xanh sống ở biển là loài động vật lớn nhất."] 
+            },
+            { 
+                id: 3, 
+                question: "Nằm giữa biển lớn\nSóng vỗ bốn bề\nTàu thuyền đi về\nMới ra thăm được?", 
+                explanation: "Hòn Đảo", 
+                english: "Island", 
+                image: "hon-dao.webp", 
+                hint: "Đây là một vùng đất nằm lẻ loi giữa biển khơi, xung quanh toàn là nước, muốn ra thăm thì chúng mình phải đi bằng tàu hoặc thuyền nhé.", 
+                facts: ["Việt Nam chúng ta có đảo Phú Quốc rất đẹp.", "Đảo Greenland là hòn đảo lớn nhất thế giới.", "Có những hòn đảo được tạo thành từ núi lửa phun trào."] 
+            },
+            { 
+                id: 4, 
+                question: "Đứng cao sừng sững\nĐội mũ mây bông\nGió thổi mênh mông\nCây xanh bao phủ?", 
+                explanation: "Ngọn Núi", 
+                english: "Mountain", 
+                image: "ngon-nui.webp", 
+                hint: "Nơi này cao vút lên tận mây xanh, sườn dốc cheo leo, muốn lên tới đỉnh cao nhất thì phải leo trèo rất vất vả.", 
+                facts: ["Đỉnh Everest là đỉnh núi cao nhất thế giới.", "Càng lên cao không khí càng lạnh.", "Núi Fansipan được gọi là nóc nhà của Đông Dương."] 
+            },
+            { 
+                id: 5, 
+                question: "Ăn sâu lòng núi\nTối om mịt mùng\nĐá nhọn trùng trùng\nTiếng vang vọng lại?", 
+                explanation: "Hang Động", 
+                english: "Cave", 
+                image: "hang-dong.webp", 
+                hint: "Một cái hốc sâu hun hút nằm bí ẩn trong lòng núi đá, bên trong thường tối om và là ngôi nhà yêu thích của các bạn dơi.", 
+                facts: ["Động Phong Nha ở Việt Nam nổi tiếng khắp thế giới.", "Người nguyên thủy ngày xưa thường sống trong hang.", "Những nhũ đá trong hang phải mất hàng ngàn năm mới tạo thành."] 
+            },
+            { 
+                id: 6, 
+                question: "Đất đai bằng phẳng\nLúa chín vàng ươm\nThơm ngát mùi rơm\nCánh cò bay lả?", 
+                explanation: "Cánh Đồng", 
+                english: "Field", 
+                image: "canh-dong.webp", 
+                hint: "Nơi đất đai rộng lớn và bằng phẳng, các bác nông dân cày cấy vất vả ở đây để trồng nên những hạt gạo thơm ngon cho bé ăn.", 
+                facts: ["Cánh đồng lúa chín vàng báo hiệu mùa gặt đã đến.", "Con trâu là người bạn thân thiết trên cánh đồng.", "Việt Nam là một trong những nước xuất khẩu gạo nhiều nhất."] 
+            },
+            { 
+                id: 7, 
+                question: "Nước từ trên núi\nĐổ xuống ầm ầm\nBọt trắng lâm thâm\nNhư là mưa bụi?", 
+                explanation: "Thác Nước", 
+                english: "Waterfall", 
+                image: "thac-nuoc.webp", 
+                hint: "Dòng nước chảy rất mạnh từ trên vách đá cao xuống vực sâu, tung bọt trắng xóa và kêu ầm ầm suốt ngày đêm.", 
+                facts: ["Thác Bản Giốc là thác nước đẹp nhất Việt Nam.", "Khi nắng chiếu vào bọt nước thác có thể tạo ra cầu vồng.", "Sức nước từ thác có thể dùng để tạo ra điện."] 
+            },
+            { 
+                id: 8, 
+                question: "Dài như dải lụa\nChảy mãi không ngơi\nThuyền bè thảnh thơi\nTrôi về biển lớn?", 
+                explanation: "Dòng Sông", 
+                english: "River", 
+                image: "dong-song.webp", 
+                hint: "Dòng nước ngọt dài uốn lượn chảy qua làng mạc, cung cấp nước tưới tiêu và bồi đắp phù sa cho cây cối rồi trôi ra biển lớn.", 
+                facts: ["Sông Hồng và sông Cửu Long là hai con sông lớn ở nước ta.", "Sông cung cấp nước tưới cho ruộng đồng.", "Nơi hai con sông gặp nhau gọi là ngã ba sông."] 
+            },
+            { 
+                id: 9, 
+                question: "Nơi đây lạnh lắm\nBăng tuyết trắng phau\nGấu trắng rủ nhau\nĐi tìm bắt cá?", 
+                explanation: "Bắc Cực", 
+                english: "The Arctic", 
+                image: "bac-cuc.webp", 
+                hint: "Nơi tận cùng của Trái Đất vô cùng lạnh giá, băng tuyết phủ trắng xóa quanh năm và là quê hương của những chú gấu trắng to lớn.", 
+                facts: ["Gấu Bắc Cực có bộ lông màu trắng để ngụy trang.", "Băng ở Bắc Cực đang tan chảy do Trái Đất nóng lên.", "Chim cánh cụt sống ở Nam Cực chứ không phải Bắc Cực."] 
+            },
+            { 
+                id: 10, 
+                question: "Cây cao bóng cả\nChe mát lối đi\nChim hót thầm thì\nThú rừng chung sống?", 
+                explanation: "Rừng Rậm", 
+                english: "Forest", 
+                image: "rung-ram.webp", 
+                hint: "Nơi cây cối mọc um tùm rậm rạp che kín cả ánh nắng mặt trời, là ngôi nhà chung của hổ, báo, khỉ và rất nhiều loài thú khác.", 
+                facts: ["Rừng được ví là lá phổi xanh của Trái Đất.", "Rừng giúp ngăn chặn lũ lụt và sạt lở đất.", "Chúng ta cần bảo vệ rừng, không được chặt cây bừa bãi."] 
+            }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        // Elements
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+        const audioContainer = document.getElementById('audio-container');
+        const controlsArea = document.getElementById('controls-area');
+        const mainHeader = document.getElementById('main-header');
+
+        // === BIẾN TOÀN CỤC: Giữ âm thanh không bị trình duyệt xóa ===
+        let currentUtterance = null;
+
+        function playEnglishVoice(event) {
+            // 1. Chặn click lan ra ngoài (Quan trọng để không bị lật thẻ)
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault(); 
+            }
+            
+            const card = flashcards[currentIndex];
+            if (!card || !card.english) return;
+
+            // 2. Dừng âm thanh cũ
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+
+            // 3. Khởi tạo đối tượng đọc và gán vào biến TOÀN CỤC
+            currentUtterance = new SpeechSynthesisUtterance(card.english);
+            currentUtterance.lang = 'en-US'; 
+            currentUtterance.rate = 0.8;
+            currentUtterance.pitch = 1.0; // Pitch 1.0 là an toàn nhất cho iOS
+
+            // 4. Chọn giọng đọc (Linh hoạt hơn)
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                // Thử tìm giọng Google (Android) hoặc giọng Mỹ (iOS)
+                // Nếu không thấy thì để trình duyệt tự chọn (Default)
+                const preferred = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
+                                  voices.find(v => v.lang === 'en-US');
+                if (preferred) currentUtterance.voice = preferred;
+            }
+
+            // 5. Dọn dẹp biến khi đọc xong
+            currentUtterance.onend = function() {
+                currentUtterance = null;
+            };
+            
+            // Xử lý lỗi nếu có
+            currentUtterance.onerror = function(e) {
+                console.error('Audio error:', e);
+                currentUtterance = null;
+            };
+
+            // 6. Phát âm thanh
+            window.speechSynthesis.speak(currentUtterance);
+        }
+
+        // Tải danh sách giọng đọc ngay khi mở web
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+        }
+
+        function resetApp() { 
+            if (event) event.stopPropagation(); 
+            if (mainHeader) mainHeader.style.display = 'flex'; 
+            if (controlsArea) controlsArea.style.display = 'flex';
+            if (cardHeader) cardHeader.style.display = 'flex';
+            
+            currentIndex = 0; 
+            isFlipped = false; 
+            showHint = false; 
+            isEndScreen = false; 
+            renderCard(); 
+        }
+
+        function renderEndScreen() {
+            const mainHeader = document.getElementById('main-header');
+            if (mainHeader) mainHeader.style.display = 'none';
+            if (cardHeader) cardHeader.style.display = 'none';
+            if (controlsArea) controlsArea.style.display = 'none';
+
+            contentEl.innerHTML = `
+                <div class="animate-fade-in flex flex-col items-center justify-center w-full h-full px-4">
+                    <div class="relative mb-6">
+                        <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center border-[3px] border-white shadow-lg z-10">
+                            <i data-lucide="medal" class="w-12 h-12 text-green-500" stroke-width="2"></i>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 bg-green-100 rounded-full opacity-40 -z-10"></div>
+                    </div>
+                    <h2 class="text-xl md:text-3xl font-black text-slate-900 mb-3 text-center leading-tight whitespace-nowrap">
+                        Chúc mừng! Bé thật là xuất sắc!
+                    </h2>
+                    <p class="text-gray-500 font-medium text-sm md:text-base mb-8 text-center">
+                        Bé đã trả lời xong 10 câu đố về thiên nhiên
+                    </p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZwIc0rDhRz0DP6M2ZogmrT3w-GVCQNEIK2Gdc0fjSuv98Jh5G" target="_blank" 
+                       class="font-soft w-fit inline-flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white px-6 py-3 rounded-full font-bold text-sm uppercase shadow-lg shadow-pink-200 mb-3">
+                        <i data-lucide="shopping-basket" class="w-5 h-5"></i>
+                        XEM SẢN PHẨM TỐT CHO MẸ VÀ BÉ
+                    </a>
+                    <button onclick="resetApp()" 
+                            class="w-fit inline-flex items-center justify-center gap-2 bg-white border-2 border-green-300 text-green-600 hover:bg-green-50 active:bg-green-100 px-6 py-3 rounded-full font-bold text-sm shadow-sm transition-all active:scale-95">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        Quay về trang đầu
+                    </button>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            if (mainHeader) mainHeader.style.display = 'flex';
+            if (cardHeader) cardHeader.style.display = 'flex';
+            if (controlsArea) controlsArea.style.display = 'flex';
+
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu: ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+                audioContainer.classList.remove('invisible');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-blue-100 text-blue-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+                audioContainer.classList.add('invisible');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-4 flex flex-col items-center h-full justify-center">
+                        <div class="w-fit bg-pink-50/80 rounded-2xl p-6 mb-6 border border-pink-200/50 shadow-sm relative mx-auto">
+                            
+                            <h3 class="text-left text-xl md:text-2xl font-bold text-slate-800 leading-relaxed whitespace-pre-line italic relative z-10 pl-2">
+                                "${card.question}"
+                            </h3>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 text-pink-600 mt-2 select-none opacity-80">
+                            <span class="text-sm font-extrabold uppercase tracking-wide">Lật mặt sau để xem đáp án</span>
+                        </div>
+                        
+                        ${showHint ? `<div class="mt-4 p-4 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-xl border border-yellow-200 animate-fade-in text-left shadow-inner w-full"><span class="font-bold flex items-center gap-2 mb-1 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-2 shadow-sm">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500/86efac/166534?text=${encodeURIComponent(card.explanation)}'">
+                        </div>
+                        <div class="w-full flex items-center justify-center gap-2 mb-3 px-2 text-center flex-wrap">
+                            <span class="text-2xl md:text-3xl font-black text-green-700 uppercase tracking-tight leading-none">
+                                ${card.explanation}
+                            </span>
+                            <span class="text-xl text-amber-400 font-bold hidden md:inline">-</span>
+                            <span class="text-xl md:text-2xl font-bold text-amber-600 uppercase italic tracking-wide leading-none">
+                                ${card.english}
+                            </span>
+                        </div>
+                        <div class="w-full bg-green-50 rounded-2xl p-4 text-left border border-green-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-green-900 mb-2 flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-green-600"></i> 
+                                3 sự thật thú vị:
+                            </p>
+                            <ul class="space-y-1">
+                                ${card.facts.map(fact => `
+                                    <li class="text-[12px] text-gray-700 flex items-start gap-2">
+                                        <span class="text-green-500 font-bold text-lg leading-none">•</span>
+                                        <span class="leading-tight">${fact}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+
+        window.speechSynthesis.getVoices();
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
