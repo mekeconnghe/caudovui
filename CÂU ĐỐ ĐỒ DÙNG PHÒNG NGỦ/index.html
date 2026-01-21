@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Đố vui Đồ dùng phòng ngủ - Mẹ Kể Con Nghe">
+    <meta property="og:description" content="Cùng bé khám phá các vật dụng êm ái trong phòng ngủ qua những câu đố vui nhộn!">
+    
+    <meta property="og:url" content="https://dovuidodungphongngu.netlify.app/">
+    <meta property="og:image" content="https://dovuidodungphongngu.netlify.app/thumb.jpg">
+    <meta property="og:image:secure_url" content="https://dovuidodungphongngu.netlify.app/thumb.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đố vui Đồ dùng phòng ngủ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .img-container { box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15); }
+    </style>
+</head>
+<body class="bg-purple-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-4 px-4">
+
+    <div class="text-center mb-4 w-full space-y-2">
+        <h1 class="text-xl md:text-2xl font-bold text-purple-700 flex items-center justify-center gap-2">
+            <i data-lucide="moon" class="w-7 h-7"></i>
+            Câu Đố Đồ Dùng Phòng Ngủ?
+        </h1>
+        <a href="https://zalo.me/g/vlhiiv860" target="_blank" class="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-xs font-medium hover:bg-purple-200 border border-purple-200 transition-colors">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Cộng đồng Mẹ Kể Con Nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex flex-col justify-center mb-4">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[8px] border-purple-200 noselect"
+            style="min-height: 650px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-4 md:p-6 flex flex-col h-full overflow-y-auto no-scrollbar">
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                    <span id="question-counter">Câu hỏi 1/10</span>
+                    
+                    <div id="audio-container" class="invisible">
+                        <button onclick="playEnglishVoice(event)" class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-all border border-blue-200 flex items-center gap-1 active:bg-blue-300">
+                            <i data-lucide="volume-2" class="w-5 h-5"></i>
+                            <span class="text-[10px] font-bold">NGHE</span>
+                        </button>
+                    </div>
+
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-purple-100 text-purple-700">Câu đố</span>
+                </div>
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg flex flex-col gap-2 mb-4">
+        <div class="flex justify-between w-full gap-2">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 font-bold text-sm">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-purple-600 active:bg-purple-700 text-white px-4 py-2.5 rounded-xl shadow-md font-bold text-sm">
+                Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <div class="flex justify-center gap-2 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> <span id="hint-text">Bật gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <audio id="audio-player" style="display:none;"></audio>
+
+    <script>
+        // Dữ liệu câu đố đồ dùng phòng ngủ
+        const flashcards = [
+            { 
+                id: 1, 
+                question: "Mặt phẳng êm êm\nBốn chân đứng vững\nBé nằm lên lưng\nNgủ ngon tới sáng?", 
+                explanation: "Cái Giường", 
+                english: "Bed", 
+                image: "cai-giuong.jpg", 
+                hint: "Đồ vật to nhất trong phòng ngủ, nơi bé ngả lưng nghỉ ngơi sau một ngày dài vui chơi.", 
+                facts: ["Chúng ta dành khoảng 1/3 cuộc đời để ngủ trên giường.", "Ngày xưa, những chiếc giường đầu tiên được làm bằng rơm và lá cây.", "Dọn giường vào buổi sáng giúp bé bắt đầu ngày mới ngăn nắp."] 
+            },
+            { 
+                id: 2, 
+                question: "Mềm như bông trắng\nĐỡ đầu bé nằm\nÊm ái quanh năm\nGiấc mơ đẹp quá?", 
+                explanation: "Cái Gối", 
+                english: "Pillow", 
+                image: "cai-goi.jpg", 
+                hint: "Vật dụng mềm mại dùng để kê dưới đầu, giúp bé không bị mỏi cổ khi ngủ.", 
+                facts: ["Gối giúp giữ cho cột sống của bé được thẳng khi nằm.", "Ở Ai Cập cổ đại, người ta dùng gối làm bằng đá.", "Một số loại gối có mùi hương hoa oải hương giúp dễ ngủ hơn."] 
+            },
+            { 
+                id: 3, 
+                question: "Ánh vàng dìu dịu\nĐứng cạnh đầu giường\nCanh giấc thân thương\nBé mơ giấc nồng?", 
+                explanation: "Đèn Ngủ", 
+                english: "Night lamp", 
+                image: "den-ngu.jpg", 
+                hint: "Loại đèn có ánh sáng nhẹ, không chói mắt, giúp bé không sợ bóng tối khi ngủ.", 
+                facts: ["Ánh sáng vàng ấm áp giúp não bộ thư giãn để đi vào giấc ngủ.", "Không nên dùng đèn có ánh sáng xanh trước khi ngủ.", "Chiếc đèn ngủ đầu tiên là những vỏ sò chứa rêu và dầu."] 
+            },
+            { 
+                id: 4, 
+                question: "Đứng im góc phòng\nGiữ áo thẳng nếp\nGọn gàng xinh đẹp\nBé mở ra xem?", 
+                explanation: "Tủ Quần Áo", 
+                english: "Wardrobe", 
+                image: "tu-quan-ao.jpg", 
+                hint: "Nơi cất giữ quần áo, váy đầm của bé để tránh bụi bẩn và gián, chuột.", 
+                facts: ["Tủ quần áo gỗ tuyết tùng có thể giúp xua đuổi các loài mối mọt.", "Sắp xếp tủ quần áo gọn gàng giúp bé tìm đồ nhanh hơn.", "Trong truyện cổ tích Narnia, chiếc tủ là cánh cửa dẫn đến thế giới phép thuật."] 
+            },
+            { 
+                id: 5, 
+                question: "Mặt tròn sáng bóng\nSoi thấy bóng hình\nBé ngắm thấy xinh\nCười tươi chúm chím?", 
+                explanation: "Cái Gương", 
+                english: "Mirror", 
+                image: "cai-guong.jpg", 
+                hint: "Đồ vật phản chiếu hình ảnh, bé nhìn vào đó để chải tóc hoặc xem mặt mình có lấm lem không.", 
+                facts: ["Những chiếc gương đầu tiên con người dùng chính là mặt nước hồ.", "Gương phản chiếu gần như toàn bộ ánh sáng chiếu vào nó.", "Cần dùng giấy báo hoặc khăn mềm để lau gương cho sạch bóng."] 
+            },
+            { 
+                id: 6, 
+                question: "Răng thưa răng nhỏ\nChải tóc mượt mà\nBé đẹp nhất nhà\nGọn gàng xinh xắn?", 
+                explanation: "Cái Lược", 
+                english: "Comb", 
+                image: "cai-luoc.jpg", 
+                hint: "Dụng cụ có nhiều răng nhỏ, dùng để gỡ rối cho mái tóc sau khi ngủ dậy.", 
+                facts: ["Ngày xưa, lược được làm từ xương động vật hoặc sừng.", "Chải đầu nhẹ nhàng giúp mát-xa da đầu cho bé.", "Lược nhựa khi chải nhanh có thể tạo ra tĩnh điện làm tóc dựng lên."] 
+            },
+            { 
+                id: 7, 
+                question: "Lông mềm mượt quá\nĐôi mắt tròn xoe\nBé ôm chở che\nNgủ ngoan tới sáng?", 
+                explanation: "Gấu Bông", 
+                english: "Teddy bear", 
+                image: "gau-bong.jpg", 
+                hint: "Người bạn đồ chơi bằng vải, bên trong nhồi bông, bé rất thích ôm khi đi ngủ.", 
+                facts: ["Gấu Teddy được đặt theo tên của Tổng thống Mỹ Theodore Roosevelt.", "Ôm gấu bông giúp bé cảm thấy an toàn và bớt lo lắng.", "Gấu bông là một trong những món đồ chơi đầu tiên được sản xuất hàng loạt."] 
+            },
+            { 
+                id: 8, 
+                question: "Vải thưa trắng muốt\nMắc ở bốn góc\nMuỗi vo ve khóc\nChẳng đốt được ai?", 
+                explanation: "Cái Màn (Mùng)", 
+                english: "Mosquito net", 
+                image: "cai-man.jpg", 
+                hint: "Tấm vải lưới mỏng bao quanh giường khi ngủ để ngăn muỗi bay vào đốt bé.", 
+                facts: ["Cái màn là vật dụng rất quan trọng ở các nước nhiệt đới như Việt Nam.", "Lỗ trên màn đủ nhỏ để chặn muỗi nhưng vẫn để không khí lọt qua.", "Dùng màn là cách an toàn nhất để phòng bệnh sốt xuất huyết."] 
+            },
+            { 
+                id: 9, 
+                question: "Mùa đông rét mướt\nĐắp vào ấm êm\nNhư bông thật mềm\nÔm em ngủ kỹ?", 
+                explanation: "Cái Chăn", 
+                english: "Blanket", 
+                image: "cai-chan.jpg", 
+                hint: "Vật dụng dày và ấm, bé kéo lên đắp ngang người khi trời trở lạnh.", 
+                facts: ["Chăn lông cừu là loại chăn giữ ấm rất tốt.", "Có loại chăn trọng lượng nặng giúp giảm căng thẳng và dễ ngủ.", "Nhiều bạn nhỏ có một chiếc 'chăn ghiền' để cảm thấy an tâm."] 
+            },
+            { 
+                id: 10, 
+                question: "Thân mình bé xíu\nMũi nhọn tinh nhanh\nDẫn chỉ loanh quanh\nMay quần áo mới?", 
+                explanation: "Cái Kim Khâu", 
+                english: "Sewing needle", 
+                image: "kim-khau.jpg", 
+                hint: "Vật bằng kim loại rất nhỏ và nhọn, có lỗ để xỏ chỉ, bé tuyệt đối không được nghịch.", 
+                facts: ["Những chiếc kim đầu tiên được làm từ xương và ngà voi.", "Kim có một cái lỗ gọi là 'mắt kim' nhưng lại không nhìn thấy được.", "Kim ngày nay được làm bằng thép để cứng và không bị gỉ."] 
+            }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+        const audioContainer = document.getElementById('audio-container');
+        const audioPlayer = document.getElementById('audio-player');
+
+        // HÀM ĐỌC TIẾNG ANH (Fix lỗi Mobile & Zalo)
+        function playEnglishVoice(event) {
+            event.stopPropagation();
+            const card = flashcards[currentIndex];
+            if (card && card.english) {
+                // Sử dụng Google TTS API - Cách duy nhất ổn định trên mọi thiết bị
+                const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(card.english)}&tl=en`;
+                
+                audioPlayer.src = audioUrl;
+                audioPlayer.play().catch(error => {
+                    console.error("Lỗi phát âm thanh:", error);
+                    // Fallback
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(card.english);
+                        utterance.lang = 'en-US';
+                        window.speechSynthesis.speak(utterance);
+                    }
+                });
+            }
+        }
+
+        function renderCard() {
+            if (isEndScreen) { renderEndScreen(); return; }
+            cardHeader.style.display = 'flex';
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu hỏi ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+                audioContainer.classList.remove('invisible');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-purple-100 text-purple-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+                audioContainer.classList.add('invisible');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Bật gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Xong <i data-lucide="check" class="w-4 h-4"></i>' : 'Sau <i data-lucide="chevron-right" class="w-4 h-4"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-4 whitespace-pre-line italic text-purple-900">"${card.question}"</h3>
+                        ${showHint ? `<div class="mt-4 p-5 bg-yellow-50 text-yellow-900 text-[14px] leading-relaxed rounded-2xl border border-yellow-200 animate-fade-in text-left shadow-inner"><span class="font-bold flex items-center gap-2 mb-2 text-yellow-700"><i data-lucide="baby" class="w-4 h-4"></i> Gợi ý cho bé:</span>${card.hint}</div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-4">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        <div class="text-2xl font-black text-purple-700 uppercase tracking-tight mb-1">${card.explanation}</div>
+                        <div class="text-lg font-bold text-blue-600 mb-4 tracking-widest flex items-center gap-2 uppercase italic">
+                           <span>-</span> ${card.english} <span>-</span>
+                        </div>
+                        <div class="w-full bg-purple-50 rounded-2xl p-4 text-left border border-purple-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-purple-900 mb-2 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i> 3 sự thật thú vị:</p>
+                            <ul class="space-y-1">${card.facts.map(fact => `<li class="text-[12px] text-gray-700 flex items-start gap-2"><span class="text-purple-500 font-bold">•</span><span>${fact}</span></li>`).join('')}</ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderEndScreen() {
+            cardHeader.style.display = 'none';
+            btnHint.disabled = true;
+            audioContainer.classList.add('invisible');
+            btnNext.innerHTML = 'Kết thúc';
+            contentEl.innerHTML = `
+                <div class="animate-fade-in text-center px-4">
+                    <div class="mb-6 bg-purple-100 p-6 rounded-full inline-block animate-bounce"><i data-lucide="party-popper" class="w-12 h-12 text-purple-600"></i></div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">Hoan hô bé giỏi quá!</h2>
+                    <p class="text-gray-600 mb-8">Bé đã trả lời đúng hết 10 câu đố về phòng ngủ rồi!</p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZsJd0quribUCkIP5roWjaPPcESPLAtCHYAUbnDTeA5SCfhpS0" target="_blank" class="flex items-center justify-center gap-3 bg-pink-500 hover:bg-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg transition-all hover:scale-105 transform"><i data-lucide="shopping-bag" class="w-6 h-6"></i>Sản phẩm cho Mẹ và Bé</a>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { if (event) event.stopPropagation(); if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } else { isEndScreen = true; renderCard(); } }
+        function prevCard() { if (event) event.stopPropagation(); if (isEndScreen) { isEndScreen = false; renderCard(); return; } if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); } }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+        function resetApp() { if (event) event.stopPropagation(); currentIndex = 0; isFlipped = false; showHint = false; isEndScreen = false; renderCard(); }
+
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
