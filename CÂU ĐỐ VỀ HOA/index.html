@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Câu đố vui: Các loài hoa - Mẹ Kể Con Nghe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        .perspective-1000 { perspective: 1000px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .noselect { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+
+        .img-container {
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-rose-50 min-h-screen font-sans text-gray-800 flex flex-col items-center py-6 px-4">
+
+    <div class="text-center mb-6 w-full space-y-3">
+        <h1 class="text-2xl md:text-3xl font-bold text-rose-700 flex items-center justify-center gap-2">
+            <i data-lucide="flower-2" class="w-8 h-8"></i>
+            Đố vui: Loài hoa gì?
+        </h1>
+        <a href="https://zalo.me/g/vlhiiv860" target="_blank" class="inline-flex items-center gap-2 bg-rose-100 text-rose-800 px-4 py-2 rounded-full text-sm font-medium hover:bg-rose-200 border border-rose-200 transition-colors">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Cộng đồng Mẹ Kể Con Nghe
+        </a>
+    </div>
+
+    <div class="w-full max-w-lg perspective-1000 flex-grow flex flex-col justify-center mb-6">
+        <div 
+            id="flashcard"
+            class="relative w-full bg-white rounded-[2.5rem] shadow-xl overflow-hidden cursor-pointer transition-all duration-300 transform active:scale-[0.98] border-b-[10px] border-rose-200 noselect"
+            style="min-height: 780px;" 
+            onclick="handleCardClick()"
+        >
+            <div class="absolute inset-0 p-4 md:p-6 flex flex-col justify-between h-full overflow-y-auto no-scrollbar">
+                
+                <div id="card-header" class="flex justify-between items-center text-[11px] md:text-sm font-black uppercase tracking-widest text-gray-500 mb-2">
+                    <span id="question-counter">Câu hỏi 1/16</span>
+                    <span id="side-indicator" class="px-4 py-1 rounded-full bg-rose-100 text-rose-700">Câu đố</span>
+                </div>
+
+                <div id="card-content" class="flex-grow flex flex-col items-center justify-center text-center py-2">
+                    </div>
+
+                <div id="card-footer" class="mt-4 text-center text-gray-400 text-[10px] italic">
+                    (Chạm vào thẻ để lật xem đáp án)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-lg flex flex-col gap-3 mb-4">
+        <div class="flex justify-between w-full gap-3">
+            <button onclick="prevCard()" class="flex-1 flex items-center justify-center gap-2 bg-white active:bg-gray-100 text-gray-700 px-4 py-4 rounded-2xl shadow-sm border border-gray-200 font-bold">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i> Trước
+            </button>
+            <button id="btn-next" onclick="nextCard()" class="flex-1 flex items-center justify-center gap-2 bg-rose-600 active:bg-rose-700 text-white px-4 py-4 rounded-2xl shadow-md font-bold">
+                Sau <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div class="flex justify-center gap-3 w-full">
+            <button id="btn-hint" onclick="toggleHint()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="lightbulb" class="w-4 h-4"></i> <span id="hint-text">Xem gợi ý</span>
+            </button>
+            <button onclick="resetApp()" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold bg-white text-gray-600 border border-gray-100">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Làm lại
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            { 
+                id: 1, 
+                question: "Thân em đầy những gai chông\nNhưng hoa rực rỡ sắc hồng, đỏ tươi\nHương thơm ngào ngạt khắp nơi\nBạn ơi hãy đoán xem tôi hoa gì?", 
+                explanation: "Hoa Hồng", 
+                image: "hoa-hong.jpg", 
+                hint: "Đây là loài hoa được mệnh danh là 'nữ hoàng của các loài hoa', có thân đầy gai sắc nhọn nhưng bông hoa lại vô cùng rực rỡ và thơm ngát.",
+                facts: ["Có hơn 100 loài hoa hồng khác nhau trên thế giới.", "Mỗi màu sắc mang một ý nghĩa: màu đỏ là tình yêu, màu vàng là tình bạn.", "Cánh hoa hồng có thể dùng để làm nước hoa hoặc pha trà rất thơm."]
+            },
+            { 
+                id: 2, 
+                question: "Hoa gì chỉ nở mùa hè\nTrong đầm thơm ngát, tiếng ve gọi mời\nNhị vàng, hạt nhỏ xinh tươi\nLá xanh làm nón che trời nắng trong?", 
+                explanation: "Hoa Sen", 
+                image: "hoa-sen.jpg", 
+                hint: "Loài hoa này 'gần bùn mà chẳng hôi tanh mùi bùn', thường nở rộ vào mùa hè và lá của nó có thể dùng để gói xôi hoặc làm nón che đầu.",
+                facts: ["Hoa sen là Quốc hoa chính thức của Việt Nam.", "Các bộ phận từ ngó sen đến hạt sen đều có thể ăn hoặc làm thuốc.", "Hạt sen có thể nảy mầm ngay cả sau hàng trăm năm bị vùi dưới đất."]
+            },
+            { 
+                id: 3, 
+                question: "Hoa gì luôn hướng mặt trời\nCánh vàng rực rỡ, rạng ngời nắng mai?", 
+                explanation: "Hoa Hướng Dương", 
+                image: "hoa-huong-duong.jpg", 
+                hint: "Bông hoa to tròn, cánh màu vàng rực như những tia nắng, và đặc điểm thú vị nhất là nó luôn quay mặt về phía ông mặt trời.",
+                facts: ["Tên gọi xuất phát từ việc hoa luôn hướng về phía mặt trời.", "Loài hoa này có khả năng hút chất độc để làm sạch môi trường đất.", "Hạt hướng dương là món ăn vặt chứa rất nhiều vitamin bổ dưỡng."]
+            },
+            { 
+                id: 4, 
+                question: "Hoa vàng nhỏ nhắn xinh tươi\nMỗi khi nở thấy mọi người đón Xuân?", 
+                explanation: "Hoa Mai", 
+                image: "hoa-mai.jpg", 
+                hint: "Mỗi khi thấy những cánh hoa vàng rực rỡ này nở rộ, người dân miền Nam lại hân hoan dọn dẹp nhà cửa đón chào Tết Nguyên Đán.",
+                facts: ["Màu vàng của hoa mai tượng trưng cho sự giàu sang và hy vọng.", "Cây mai vàng rất kiên cường, có thể sống thọ hàng trăm năm.", "Người ta vặt hết lá để cây tập trung ra hoa đúng vào mùng 1 Tết."]
+            },
+            { 
+                id: 5, 
+                question: "Hoa gì chỉ nở ban đêm\nTrắng tinh, thơm ngát, êm đềm hương bay?", 
+                explanation: "Hoa quỳnh", 
+                image: "hoa-quynh.jpg", 
+                hint: "Một loài hoa màu trắng tinh khôi, tỏa hương thơm ngát nhưng lại rất 'khiêm nhường' vì chỉ chọn lúc đêm khuya vắng lặng để nở rộ.",
+                facts: ["Được mệnh danh là 'Nữ hoàng bóng đêm' vì vẻ đẹp lộng lẫy.", "Hoa Quỳnh nở rất nhanh và thường tàn ngay trước khi trời sáng.", "Hương thơm của hoa Quỳnh cực kỳ nồng nàn và lan tỏa xa."]
+            },
+            { 
+                id: 6, 
+                question: "Hoa gì hồng rực sân nhà\nTết về khoe sắc, mọi nhà đều vui?", 
+                explanation: "Hoa đào", 
+                image: "hoa-dao.jpg", 
+                hint: "Loài hoa mang sắc hồng thắm, là biểu tượng không thể thiếu trong mỗi gia đình miền Bắc mỗi dịp Tết đến xuân về.",
+                facts: ["Là loài hoa báo hiệu mùa xuân đặc trưng nhất của miền Bắc.", "Cây đào có nhiều loại như đào bích, đào phai và cả đào bạch.", "Quả đào khi chín có vị ngọt, thơm và rất tốt cho sức khỏe."]
+            },
+            { 
+                id: 7, 
+                question: "Hoa gì vừa mới nêu tên\nNhớ chú bộ đội ngày đêm diệt thù?", 
+                explanation: "Hoa súng", 
+                image: "hoa-sung.jpg", 
+                hint: "Loài hoa này mọc dưới nước, có lá tròn nổi trên mặt hồ và tên gọi của nó trùng với một món đồ mà các chú bộ đội hay đeo trên vai.",
+                facts: ["Hoa súng thường nở vào sáng sớm và khép cánh khi nắng gắt.", "Thân hoa súng được người dân miền Tây dùng làm rau ăn rất ngon.", "Hoa súng có màu sắc cực kỳ đa dạng từ trắng, hồng đến tím."]
+            },
+            { 
+                id: 8, 
+                question: "Hoa gì đỏ rực như son\nNở vào mùa hạ, ve con gọi sầu\nGắn liền kỷ niệm học trò\nCánh hoa ép bướm, trang thơ ươm nồng?", 
+                explanation: "Hoa phượng", 
+                image: "hoa-phuong.jpg", 
+                hint: "Những chùm hoa đỏ rực như lửa nở khắp sân trường, gắn liền với tiếng ve kêu râm ran và những ngày chia tay bạn bè để nghỉ hè.",
+                facts: ["Tên gọi 'Phượng Vĩ' có nghĩa là đuôi của chim Phượng Hoàng.", "Hoa phượng gắn liền với tuổi học trò nên còn gọi là hoa học trò.", "Lá của cây phượng trông rất giống lá me, ban đêm sẽ khép lại."]
+            },
+            { 
+                id: 9, 
+                question: "Quả dài xanh mướt hoa vàng\nLeo giàn đón nắng bên ao nhà bà?", 
+                explanation: "Hoa mướp", 
+                image: "hoa-muop.jpg", 
+                hint: "Một loài hoa dân dã màu vàng tươi, mọc trên những giàn leo xanh mướt, sau này sẽ kết thành những quả dài để mẹ nấu canh cực ngọt.",
+                facts: ["Hoa mướp thu hút rất nhiều ong bướm đến hút mật mỗi ngày.", "Nụ hoa mướp có thể hái để xào ăn như một loại rau sạch.", "Xơ của quả mướp già có thể dùng làm bông tắm cực kỳ an toàn."]
+            },
+            { 
+                id: 10, 
+                question: "Hoa gì tím biếc một màu\nNở vào mùa hạ, nhắc nhau tựu trường\nGắn cùng tuổi nhỏ mến thương\nLòng em xao xuyến, hoa vương bên hè?", 
+                explanation: "Hoa bằng lăng", 
+                image: "hoa-bang-lang.jpg", 
+                hint: "Dọc các con phố vào mùa hè, bạn sẽ thấy những chùm hoa màu tím biếc này nở rộ, thường nở cùng lúc với mùa hoa phượng đỏ.",
+                facts: ["Màu tím của hoa bằng lăng tượng trưng cho sự chung thủy.", "Cây thường được trồng làm bóng mát vì có tán lá dày và rộng.", "Gỗ cây bằng lăng rất quý, thường được dùng đóng thuyền hoặc đồ gỗ."]
+            },
+            { 
+                id: 11, 
+                question: "Chiếc kèn nhỏ\nTrắng trắng tinh\nNhụy xinh xinh\nThơm thơm ngát?", 
+                explanation: "Hoa loa kèn", 
+                image: "hoa-loa-ken.jpg", 
+                hint: "Loài hoa trắng muốt, thơm dịu, có hình dáng thuôn dài rất giống một dụng cụ âm nhạc mà các chú nhạc công hay cầm để thổi.",
+                facts: ["Hoa loa kèn còn có tên gọi khác là hoa Bách Hợp.", "Đây là loài hoa biểu tượng cho sự thanh khiết và cao quý.", "Mùa hoa loa kèn rất ngắn, thường chỉ nở rộ vào tháng 4 hàng năm."]
+            },
+            { 
+                id: 13, 
+                question: "Hoa gì nở đỏ khắp nơi\nGà con rất thích, chơi vơi trên đầu\nTên gọi giống hệt chiếc mào\nĐố bé hoa ấy tên nào biết không?", 
+                explanation: "Hoa mào gà", 
+                image: "hoa-mao-ga.jpg", 
+                hint: "Bông hoa có hình dáng rất lạ mắt, sờ vào thấy mềm mịn như nhung và trông y hệt như cái mào đỏ rực rỡ trên đầu của một chú gà trống.",
+                facts: ["Cánh hoa mào gà mềm mịn, sờ vào cảm giác giống như nhung.", "Hoa rất lâu tàn, có thể giữ màu đỏ tươi trong nhiều tuần lễ.", "Hạt của hoa mào gà có thể dùng để làm thuốc chữa bệnh."]
+            },
+            { 
+                id: 15, 
+                question: "Hoa gì chỉ thích nắng trưa\nĐúng mười giờ sáng, thi nhau nở xòe\nĐủ màu xanh, đỏ, tím, vàng\nLá kim nhỏ xíu, rộn ràng khắp nơi?", 
+                explanation: "Hoa mười giờ", 
+                image: "hoa-muoi-gio.jpg", 
+                hint: "Loài hoa tí hon này rất ham ngủ, nó chỉ chờ đến khi nắng lên thật rực rỡ vào gần giữa trưa mới chịu mở cánh chào thế giới.",
+                facts: ["Hoa thường chỉ nở rộ vào khoảng 10 giờ sáng rồi khép cánh lại.", "Đây là loài hoa cực kỳ dễ sống, chỉ cần cắm cành là mọc cây.", "Hoa có nguồn gốc từ vùng Nam Mỹ nắng gió rực rỡ."]
+            },
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let showHint = false;
+        let isEndScreen = false;
+
+        const contentEl = document.getElementById('card-content');
+        const counterEl = document.getElementById('question-counter');
+        const indicatorEl = document.getElementById('side-indicator');
+        const cardHeader = document.getElementById('card-header');
+        const cardFooter = document.getElementById('card-footer');
+        const btnHint = document.getElementById('btn-hint');
+        const hintTextEl = document.getElementById('hint-text');
+        const btnNext = document.getElementById('btn-next');
+
+        function renderCard() {
+            if (isEndScreen) {
+                renderEndScreen();
+                return;
+            }
+
+            cardHeader.style.display = 'flex';
+            cardFooter.style.display = 'block';
+            const card = flashcards[currentIndex];
+            counterEl.textContent = `Câu hỏi ${currentIndex + 1}/${flashcards.length}`;
+            
+            if (isFlipped) {
+                indicatorEl.textContent = 'Đáp án';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-green-100 text-green-700 transition-colors duration-300';
+                btnHint.disabled = true;
+                btnHint.classList.add('opacity-50', 'bg-gray-50');
+            } else {
+                indicatorEl.textContent = 'Câu đố';
+                indicatorEl.className = 'px-4 py-1 rounded-full bg-rose-100 text-rose-700 transition-colors duration-300';
+                btnHint.disabled = false;
+                btnHint.classList.remove('opacity-50', 'bg-gray-50');
+            }
+            
+            hintTextEl.textContent = showHint ? 'Ẩn gợi ý' : 'Xem gợi ý';
+            btnNext.innerHTML = currentIndex === flashcards.length - 1 ? 'Hoàn thành <i data-lucide="check" class="w-5 h-5"></i>' : 'Sau <i data-lucide="chevron-right" class="w-5 h-5"></i>';
+
+            if (!isFlipped) {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full px-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed mb-6 whitespace-pre-line italic text-rose-900">"${card.question}"</h3>
+                        ${showHint ? `
+                        <div class="mt-4 p-5 bg-yellow-50 text-yellow-900 text-[15px] leading-relaxed rounded-2xl border border-yellow-200 animate-fade-in text-left shadow-inner">
+                            <span class="font-bold flex items-center gap-2 mb-2 text-yellow-700"><i data-lucide="lightbulb" class="w-5 h-5"></i> Gợi ý cho bé:</span>
+                            ${card.hint}
+                        </div>` : ''}
+                    </div>`;
+            } else {
+                contentEl.innerHTML = `
+                    <div class="animate-fade-in w-full flex flex-col items-center">
+                        <div class="img-container w-full max-w-[480px] aspect-square rounded-[2rem] overflow-hidden border-4 border-white mb-4">
+                            <img src="${card.image}" alt="${card.explanation}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/500x500?text=${card.explanation}'">
+                        </div>
+                        <div class="text-2xl font-black text-green-700 uppercase tracking-tight mb-4">
+                            ${card.explanation}
+                        </div>
+                        <div class="w-full bg-green-50 rounded-2xl p-4 text-left border border-green-100 shadow-sm">
+                            <p class="text-[14px] font-bold text-green-800 mb-2 flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i> 3 sự thật thú vị:
+                            </p>
+                            <ul class="space-y-2">
+                                ${card.facts.map(fact => `
+                                    <li class="text-[13px] text-gray-700 flex items-start gap-2">
+                                        <span class="text-green-500 font-bold">•</span>
+                                        <span>${fact}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderEndScreen() {
+            cardHeader.style.display = 'none';
+            cardFooter.style.display = 'none';
+            btnHint.disabled = true;
+            btnNext.innerHTML = 'Kết thúc';
+            contentEl.innerHTML = `
+                <div class="animate-fade-in text-center px-4">
+                    <div class="mb-6 bg-rose-100 p-6 rounded-full inline-block animate-bounce"><i data-lucide="party-popper" class="w-12 h-12 text-rose-600"></i></div>
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">Hoàn Thành Xuất Sắc!</h2>
+                    <p class="text-gray-600 mb-8">Bé đã vượt qua tất cả các câu đố và khám phá thêm bao nhiêu điều mới lạ về các loài hoa.</p>
+                    <a href="https://catalog.zalo.me/?cid=Cj7DJZsJd0quribUCkIP5roWjaPPcESPLAtCHYAUbnDTeA5SCfhpS0" 
+                       target="_blank"
+                       class="flex items-center gap-3 bg-pink-500 hover:bg-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg shadow-pink-200 transition-all hover:scale-105 transform">
+                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                        Các sản phẩm dành cho Mẹ và Bé
+                    </a>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        function handleCardClick() { if (!isEndScreen) { isFlipped = !isFlipped; renderCard(); } }
+        function nextCard() { 
+            if (event) event.stopPropagation();
+            if (currentIndex < flashcards.length - 1) { currentIndex++; isFlipped = false; showHint = false; renderCard(); } 
+            else { isEndScreen = true; renderCard(); }
+        }
+        function prevCard() {
+            if (event) event.stopPropagation();
+            if (isEndScreen) { isEndScreen = false; renderCard(); return; }
+            if (currentIndex > 0) { currentIndex--; isFlipped = false; showHint = false; renderCard(); }
+        }
+        function toggleHint() { if (event) event.stopPropagation(); if(!isFlipped) { showHint = !showHint; renderCard(); } }
+        function resetApp() { if (event) event.stopPropagation(); currentIndex = 0; isFlipped = false; showHint = false; isEndScreen = false; renderCard(); }
+
+        lucide.createIcons();
+        renderCard();
+    </script>
+</body>
+</html>
